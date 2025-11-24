@@ -6,7 +6,6 @@ import {
   Heart,
   Clock,
   Users,
-  ChefHat,
   Star,
   Bookmark,
   Share2,
@@ -16,7 +15,6 @@ import {
   Check,
   MessageCircle,
   Eye,
-  TrendingUp,
 } from "lucide-react";
 
 // interface Ingredient {

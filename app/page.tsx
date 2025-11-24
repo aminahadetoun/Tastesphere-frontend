@@ -22,6 +22,7 @@ import {
   Section,
 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
 //sample data
 
 const foodImages = [
@@ -184,7 +185,8 @@ const foodies = [
 ];
 
 export default function Page() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
   const [currentSlide, setCurrentSlide] = useState<number>(0);
 
   const nextSlide = () => {
@@ -199,119 +201,6 @@ export default function Page() {
 
   return (
     <section className="min-h-screen bg-linear-to-b from-amber-50 via-white to-orange-50">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <span className="text-3xl">🍽️</span>
-              <span className="text-2xl font-bold bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                TasteSphere
-              </span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <a
-                href="#"
-                className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
-              >
-                Recipes
-              </a>
-              <a
-                href="#"
-                className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
-              >
-                Restaurants
-              </a>
-              <a
-                href="#"
-                className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
-              >
-                Community
-              </a>
-              <a
-                href="#"
-                className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
-              >
-                About
-              </a>
-
-              {/* Search & Authentication */}
-              <div className="hidden md:flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Search recipes..."
-                    className="pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 w-64"
-                  />
-                </div>
-                <button className="px-4 py-2 text-orange-600 hover:text-orange-700 font-medium">
-                  Sign In
-                </button>
-                <button className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 font-medium">
-                  Get Started
-                </button>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-700"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-100 bg-white">
-              <div className="px-4 py-4 space-y-3">
-                <a
-                  href="#"
-                  className="block text-gray-700 hover:text-orange-500 font-medium"
-                >
-                  Recipes
-                </a>
-                <a
-                  href="#"
-                  className="block text-gray-700 hover:text-orange-500 font-medium"
-                >
-                  Restaurants
-                </a>
-                <a
-                  href="#"
-                  className="block text-gray-700 hover:text-orange-500 font-medium"
-                >
-                  Community
-                </a>
-                <a
-                  href="#"
-                  className="block text-gray-700 hover:text-orange-500 font-medium"
-                >
-                  About
-                </a>
-                <div className="pt-3 border-t border-gray-100 space-y-2">
-                  <button className="w-full px-4 py-2 text-orange-600 border border-orange-500 rounded-full  font-medium">
-                    Sign In
-                  </button>
-                  <button className="w-full px-4 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium">
-                    Get Started
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-r from-orange-500/20 to-amber-500/20"></div>
@@ -333,11 +222,17 @@ export default function Page() {
                 foodies.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <button className="px-8 py-4 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 font-semibold text-lg flex items-center justify-center gap-2">
+                <button
+                  onClick={() => router.push("/recipe")}
+                  className="px-8 py-4 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 font-semibold text-lg flex items-center justify-center gap-2"
+                >
                   <BookOpen className="w-5 h-5" />
                   Explore Recipes
                 </button>
-                <button className="px-8 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-full hover:border-orange-400 hover:bg-orange-50 transition-all font-semibold text-lg flex items-center justify-center gap-2">
+                <button
+                  onClick={() => router.push("/community-chat")}
+                  className="px-8 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-full hover:border-orange-400 hover:bg-orange-50 transition-all font-semibold text-lg flex items-center justify-center gap-2"
+                >
                   <Users className="w-5 h-5 " />
                   Join the Community
                 </button>
@@ -514,7 +409,10 @@ export default function Page() {
                               <span>{restaurants.distance} away</span>
                             </div>
                           </div>
-                          <button className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-semibold">
+                          <button
+                            onClick={() => router.push("/restaurant")}
+                            className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-semibold"
+                          >
                             View Details
                           </button>
                         </div>
@@ -641,7 +539,10 @@ export default function Page() {
             Join thousands of food lovers sharing and discovering amazing
             recipes worldwide
           </p>
-          <button className="px-8 py-4 bg-white text-orange-600 rounded-full hover:bg-gray-50 transition-all shadow-xl font-semibold text-lg">
+          <button
+            onClick={() => router.push("/auth")}
+            className="px-8 py-4 bg-white text-orange-600 rounded-full hover:bg-gray-50 transition-all shadow-xl font-semibold text-lg"
+          >
             Create Free Account
           </button>
         </div>
