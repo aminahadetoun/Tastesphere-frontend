@@ -79,7 +79,7 @@ const myRecipes = [
     id: 2,
     title: "Homemade Dumplings",
     image:
-      "https://www.seriouseats.com/thmb/BJlIwZDz8JK6BdP1W8uFLYvQxkE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20210326-dumpling-wrappers-vicky-wasik-34-d55a14f8dd064b8dbe8b1cfa89a2f494.jpg",
+      "https://asianinspirations.com.au/wp-content/uploads/2022/09/R03015-Pan-Fried-Beef-Potstickers-(Dumplings).jpg",
     category: "Asian",
     likes: 456,
     views: 2134,
@@ -91,7 +91,7 @@ const myRecipes = [
     id: 3,
     title: "Matcha Tiramisu",
     image:
-      "https://www.justonecookbook.com/wp-content/uploads/2023/03/Matcha-Tiramisu-8055-I.jpg",
+      "https://abajillianrecipes.com/wp-content/uploads/2021/08/Matcha-Tiramisu-A-baJillian-Recipes-15-1024x1024.jpg",
     category: "Dessert",
     likes: 789,
     views: 3421,

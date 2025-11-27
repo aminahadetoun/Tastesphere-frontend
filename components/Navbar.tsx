@@ -3,10 +3,12 @@ import React, { useState } from "react";
 import { Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
@@ -21,56 +23,68 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center  gap-8">
             <Link
               href="/"
-              className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                pathname === "/"
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
             >
               Home
             </Link>
-            <Link
-              href="/user-profile"
-              className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
-            >
-              Dashboard
-            </Link>
+
             <Link
               href="/recipe"
-              className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                pathname === "/recipe"
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
             >
               Recipes
             </Link>
             <Link
               href="/restaurant"
-              className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                pathname === "/restaurant"
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
             >
               Restaurants
             </Link>
             <Link
               href="/community-chat"
-              className="text-gray-700 hover:text-orange-500 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                pathname === "/community-chat"
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
             >
               Community
             </Link>
-
+            <Link
+              href="/user-profile"
+              className={`font-medium transition-colors ${
+                pathname === "/user-profile"
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
+            >
+              Dashboard
+            </Link>
             {/* Search & Authentication */}
             <div className="hidden md:flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search recipes..."
-                  className="pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 w-64"
-                />
-              </div>
               <button
-                onClick={() => router.push("/auth")}
+                onClick={() => router.push("/signin")}
                 className="px-4 py-2 text-orange-600 hover:text-orange-700 font-medium"
               >
                 Sign In
               </button>
               <button
-                onClick={() => router.push("/auth")}
+                onClick={() => router.push("/signup")}
                 className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 font-medium"
               >
                 Get Started

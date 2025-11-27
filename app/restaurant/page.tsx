@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import {
   Search,
   Filter,
@@ -178,6 +180,7 @@ const restaurants = [
 ];
 
 export default function Page() {
+  const router = useRouter();
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
   const [savedRestaurants, setSavedRestaurants] = useState<string[]>([]);
   const [filters, setFilters] = useState({
@@ -293,7 +296,10 @@ export default function Page() {
                 Restaurant Explorer
               </h1>
             </div>
-            <button className="px-4 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium">
+            <button
+              onClick={() => router.push("/restaurant/add")}
+              className="px-4 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium"
+            >
               Add Restaurant
             </button>
           </div>

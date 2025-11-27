@@ -1,5 +1,6 @@
 "use client";
 import React, { use, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Filter,
@@ -16,29 +17,6 @@ import {
   MessageCircle,
   Eye,
 } from "lucide-react";
-
-// interface Ingredient {
-//   item: string;
-//   amount: string; // e.g. "2 cups", "1 tbsp", etc.
-// }
-
-// interface Recipe {
-//   id: number;
-//   title: string;
-//   image: string;
-//   author: string;
-//   authorAvatar: string;
-//   time: string;
-//   servings: number;
-//   difficulty: string;
-//   rating: number;
-//   reviews: number;
-//   ingredients: Ingredient[];
-//   steps: string[];
-//   tags: string[];
-//   prepTime: string;
-//   cookTime: string;
-// }
 
 const recipes = [
   {
@@ -287,6 +265,7 @@ const recipes = [
 ];
 
 export default function Page() {
+  const router = useRouter();
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [savedRecipes, setSavedRecipes] = useState<string[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<string[]>([]);
@@ -403,7 +382,10 @@ export default function Page() {
                 Recipe Hub
               </h1>
             </div>
-            <button className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium flex items-center gap-2">
+            <button
+              onClick={() => router.push("/recipe/add")}
+              className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium flex items-center gap-2"
+            >
               <Plus className="w-5 h-5" /> Add Recipe
             </button>
           </div>
