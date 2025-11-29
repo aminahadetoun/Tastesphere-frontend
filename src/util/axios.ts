@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
       !originalRequest._retry
     ) {
       originalRequest._retry = true; // Prevent infinite loop
-      return fetch("https://localhost:5000/api/v1/auth/refresh-token", {
+      return fetch("http://localhost:5000/api/v1/auth/refresh-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -17,8 +17,11 @@ import {
   MessageCircle,
   Eye,
 } from "lucide-react";
+import { fetchAllRecipes } from "@/src/services/recipeService";
+import { message } from "antd";
+import useDebounced from "@/src/hooks/useDebounced";
 
-const recipes = [
+const tempRecipes = [
   {
     id: 1,
     title: "Authentic Italian Carbonara",
@@ -266,6 +269,8 @@ const recipes = [
 
 export default function Page() {
   const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [recipes, setRecipes] = useState<any[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [savedRecipes, setSavedRecipes] = useState<string[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<string[]>([]);
@@ -280,6 +285,7 @@ export default function Page() {
   });
 
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounced(searchQuery, 500);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState("grid"); //"grid" or "masonry"
 
@@ -303,6 +309,28 @@ export default function Page() {
     "Gluten-Free",
     "Dairy-Free",
   ];
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        let filters = {};
+        if (debouncedSearchQuery) {
+          filters = { ...filters, q: `search:${debouncedSearchQuery}` };
+        }
+
+        const res = await fetchAllRecipes(filters)
+        if (res && Array.isArray(res.data)) {
+          setRecipes(res.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch recipes:", error);
+        setRecipes([])
+        messageApi.error("Failed to fetch recipes. Please try again later.");
+      }
+    }
+
+    fetchRecipes();
+  }, [debouncedSearchQuery]); // Fetch recipes from API in real implementation
 
   const toggleSave = (recipeId: string) => {
     setSavedRecipes((prev) =>
@@ -371,729 +399,719 @@ export default function Page() {
   });
 
   return (
-    <section className="min-h-screen bg-linear-to-b  from-orange-50 via-white to-amber-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">📖</span>
-              <h1 className="text-2xl font-bold bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                Recipe Hub
-              </h1>
+    <>
+      {contextHolder}
+      <section className="min-h-screen bg-linear-to-b  from-orange-50 via-white to-amber-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm sticky top-0 z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">📖</span>
+                <h1 className="text-2xl font-bold bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  Recipe Hub
+                </h1>
+              </div>
+              <button
+                onClick={() => router.push("/recipe/add")}
+                className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" /> Add Recipe
+              </button>
             </div>
-            <button
-              onClick={() => router.push("/recipe/add")}
-              className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" /> Add Recipe
-            </button>
-          </div>
 
-          {/* Search and Filter Bar */}
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />{" "}
-              <input
-                type="text"
-                placeholder="Search recipes, cuisines, ingredients..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              />
+            {/* Search and Filter Bar */}
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />{" "}
+                <input
+                  type="text"
+                  placeholder="Search recipes, cuisines, ingredients..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="px-6 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
+              >
+                <Filter className="w-5 h-5" />
+                Filters
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-6 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
+
+            {/* Filter Panel */}
+            {showFilters && (
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="grid md:grid-cols-4 gap-4">
+                  {/* filter by Cuisine */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cuisine
+                    </label>
+                    <select
+                      value={filters.cuisine}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          cuisine: e.target.value.toLowerCase(),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {cuisineTypes.map((type) => (
+                        <option key={type} value={type.toLowerCase()}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Filter by Difficulty */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Difficulty
+                    </label>
+                    <select
+                      value={filters.difficulty}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          difficulty: e.target.value.toLowerCase(),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {difficulties.map((diff) => (
+                        <option key={diff} value={diff.toLowerCase()}>
+                          {diff}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Filter by Time */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Time
+                    </label>
+                    <select
+                      value={filters.time}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          time: e.target.value.toLowerCase(),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {timeRanges.map((time) => (
+                        <option key={time} value={time.toLowerCase()}>
+                          {time}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* filter by Dietary */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dietary
+                    </label>
+                    <select
+                      value={filters.dietary}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          dietary: e.target.value.toLowerCase(),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {dietaryOptions.map((diet) => (
+                        <option key={diet} value={diet.toLowerCase()}>
+                          {diet}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+        </header>
 
-          {/* Filter Panel */}
-          {showFilters && (
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="grid md:grid-cols-4 gap-4">
-                {/* filter by Cuisine */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cuisine
-                  </label>
-                  <select
-                    value={filters.cuisine}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        cuisine: e.target.value.toLowerCase(),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {!selectedRecipe ? (
+            <>
+              {/* Recipe Grid Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {filteredRecipes.length} Recipes Found
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${viewMode === "grid"
+                        ? "bg-orange-500 text-white"
+                        : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
+                      }`}
                   >
-                    {cuisineTypes.map((type) => (
-                      <option key={type} value={type.toLowerCase()}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                    Grid
+                  </button>
+                  <button
+                    onClick={() => setViewMode("masonry")}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${viewMode === "masonry"
+                        ? "bg-orange-500 text-white"
+                        : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
+                      }`}
+                  >
+                    Masonry
+                  </button>
+                </div>
+              </div>
+
+              {/* Recipe Grid*/}
+              <div
+                className={`grid gap-6 ${viewMode === "grid"
+                    ? "sm:grid-cols-2 lg:grid-cols-3"
+                    : "sm:grid-cols-2 lg:grid-cols-3"
+                  }`}
+              >
+                {filteredRecipes.map((recipe) => (
+                  <div
+                    key={recipe.id}
+                    className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 overflow-hidden group cursor-pointer"
+                    onClick={() => {
+                      setSelectedRecipe(recipe);
+                      setServings(recipe.servings);
+                      setCheckedIngredients([]);
+                      setCompletedSteps([]);
+                    }}
+                  >
+                    {/* Recipe Image */}
+                    <div className="aspect-video bg-linear-to-br from-orange-100 to-amber-100 flex items-center justify-center text-8xl relative overflow-hidden">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                      <img
+                        src={recipe.image}
+                        alt={recipe.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSave(recipe.id.toString());
+                        }}
+                        className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+                      >
+                        <Bookmark
+                          className={`w-5 h-5 ${savedRecipes.includes(recipe.id.toString())
+                              ? "fill-orange-500 text-orange-500"
+                              : "text-gray-600"
+                            }`}
+                        />
+                      </button>
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${recipe.difficulty === "Easy"
+                              ? "bg-green-500 text-white"
+                              : recipe.difficulty === "Medium"
+                                ? "bg-yellow-500 text-white"
+                                : "bg-red-500 text-white"
+                            }`}
+                        >
+                          {recipe.difficulty}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Recipe Info */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">
+                          {recipe.cuisine}
+                        </span>{" "}
+                        {recipe.dietary !== "None" && (
+                          <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                            {recipe.dietary}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
+                        {recipe.title}
+                      </h3>
+
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-2xl">{recipe.authorAvatar}</span>
+                        <span className="text-sm text-gray-600">
+                          {recipe.author}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {recipe.time}
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {recipe.servings} servings
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          {recipe.rating}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Heart className="w-4 h-4" /> {recipe.likes}
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="w-4 h-4" /> {recipe.reviews}
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-4 h-4" /> {recipe.views}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredRecipes.length === 0 && (
+                <div className="text-center py-20">
+                  <div className="text-8xl mb-6">🔍</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    No recipes found
+                  </h3>
+                  <p className="text-gray-600">
+                    Try adjusting your filters or search query
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Recipe Detail View */
+            <div className="max-w-5xl mx-auto">
+              <button
+                onClick={() => setSelectedRecipe(null)}
+                className="mb-6 py-2 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
+              >
+                <X className="w-5 h-5 " /> Back to Recipes
+              </button>
+
+              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                {/* Recipe Header */}
+                <div className="relative aspect-21/9 bg-linear-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                  <img
+                    src={selectedRecipe.image}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-6 right-6 flex gap-3">
+                    <button
+                      onClick={() => toggleSave(selectedRecipe.id)}
+                      className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <Bookmark
+                        className={`w-6 h-6 ${savedRecipes.includes(selectedRecipe.id)
+                            ? "fill-orange-500 text-orange-500"
+                            : "text-gray-600"
+                          }`}
+                      />
+                    </button>
+
+                    <button className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors">
+                      <Share2 className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Filter by Difficulty */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Difficulty
-                  </label>
-                  <select
-                    value={filters.difficulty}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        difficulty: e.target.value.toLowerCase(),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {difficulties.map((diff) => (
-                      <option key={diff} value={diff.toLowerCase()}>
-                        {diff}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <div className="p-8">
+                  {/* Title and Meta */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                        {selectedRecipe.cuisine}
+                      </span>
 
-                {/* Filter by Time */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Time
-                  </label>
-                  <select
-                    value={filters.time}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        time: e.target.value.toLowerCase(),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {timeRanges.map((time) => (
-                      <option key={time} value={time.toLowerCase()}>
-                        {time}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${selectedRecipe.difficulty === "Easy"
+                            ? "bg-green-500 text-white"
+                            : selectedRecipe.difficulty === "Medium"
+                              ? "bg-yellow-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
+                      >
+                        {selectedRecipe.difficulty}
+                      </span>
+                      {selectedRecipe.dietary !== "None" && (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                          {selectedRecipe.dietary}
+                        </span>
+                      )}
+                    </div>
 
-                {/* filter by Dietary */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dietary
-                  </label>
-                  <select
-                    value={filters.dietary}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        dietary: e.target.value.toLowerCase(),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {dietaryOptions.map((diet) => (
-                      <option key={diet} value={diet.toLowerCase()}>
-                        {diet}
-                      </option>
-                    ))}
-                  </select>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                      {selectedRecipe.title}
+                    </h1>
+
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-3xl">
+                        {selectedRecipe.authorAvatar}
+                      </span>
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {selectedRecipe.author}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Recipe Creator
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-700 leading-relaxed mb-6">
+                      {selectedRecipe.description}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                        <div className="font-bold text-gray-900">
+                          {selectedRecipe.time}
+                        </div>
+                        <div className="text-xs text-gray-900">Total Time</div>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
+                          <Users className="w-5 h-5" />
+                        </div>
+                        <div className="font-bold text-gray-900">
+                          {selectedRecipe.servings} servings
+                        </div>
+                        <div className="text-xs text-gray-600">Serves</div>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
+                          <Star className="W-5 h-5 fill-yellow-400 text-yellow-400" />
+                        </div>
+                        <div className="font-bold text-gray-900">
+                          {selectedRecipe.rating}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {selectedRecipe.reviews} reviews
+                        </div>
+                      </div>
+
+                      <div className="text-center">
+                        <button
+                          onClick={() => toggleLike(selectedRecipe.id)}
+                          className="flex flex-col items-center w-full"
+                        >
+                          <Heart
+                            className={`w-5 h-5 mb-1 ${likedRecipes.includes(selectedRecipe.id)
+                                ? "fill-red-500 text-red-500"
+                                : "text-gray-600"
+                              }`}
+                          />
+                          <div className="font-bold text-gray-900">
+                            {selectedRecipe.likes}
+                          </div>
+                          <div className="text-xs text-gray-600">Likes</div>
+                        </button>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
+                          <Eye className="w-5 h-5" />
+                        </div>
+                        <div className="font-bold text-gray-900">
+                          {selectedRecipe.views}
+                        </div>
+                        <div className="text-xs text-gray-600">Views</div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* ***** */}
+                  {/* ingredients Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Ingredients
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-600">Servings:</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => adjustServings(-1)}
+                            className="p-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="font-bold text-lg w-8 text-center">
+                            {servings}
+                          </span>
+                          <button
+                            onClick={() => adjustServings(1)}
+                            className="p-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-linear-to-br from-orange-50 to-amber-50 rounded-xl p-6">
+                      <div className="space-y-3">
+                        {selectedRecipe.ingredients.map(
+                          (ingredient: any, index: number) => {
+                            const multiplier = servings / selectedRecipe.servings;
+                            const adjustedAmount = ingredient.amount.replace(
+                              /\d+/g,
+                              (match: any) =>
+                                Math.round(parseInt(match) * multiplier)
+                            );
+
+                            return (
+                              <label
+                                key={index}
+                                className="flex items-start gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkedIngredients.includes(index)}
+                                  onChange={() => toggleIngredient(index)}
+                                  className="mt-1 w-5 h-5 text-orange-500 rounded focus:ring-2 focus:ring-orange-400"
+                                />
+                                <div className="flex-1">
+                                  <span
+                                    className={`font-medium ${checkedIngredients.includes(index)
+                                        ? "line-through text-gray-400"
+                                        : "text-gray-900"
+                                      }`}
+                                  >
+                                    {ingredient.item}
+                                  </span>
+                                  <span
+                                    className={`ml-2 ${checkedIngredients.includes(index)
+                                        ? "line-through text-gray-400"
+                                        : "text-gray-600"
+                                      }`}
+                                  >
+                                    - {adjustedAmount}
+                                  </span>
+                                </div>
+                              </label>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Instructions Section */}
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Instructions
+                    </h2>
+                    <div className="space-y-4">
+                      {selectedRecipe.steps.map((step: string, index: number) => (
+                        <div
+                          key={index}
+                          className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                        >
+                          {" "}
+                          <div className="shrink-0">
+                            {" "}
+                            <button
+                              onClick={() => toggleStep(index)}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${completedSteps.includes(index)
+                                  ? "bg-green-500 text-white"
+                                  : "bg-white border-2 border-gray-300 text-gray-700"
+                                }`}
+                            >
+                              {completedSteps.includes(index) ? (
+                                <Check className="w-5 h-5" />
+                              ) : (
+                                index + 1
+                              )}
+                            </button>
+                          </div>
+                          <p
+                            className={`flex-1 leading-relaxed ${completedSteps.includes(index)
+                                ? "line-through text-gray-400"
+                                : "text-gray-700"
+                              }`}
+                          >
+                            {step}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Tags */}.
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      Tags
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRecipe.tags.map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors cursor-pointer"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Comments Section */}
+                  <div className="border-t border-gray-200 pt-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                      Reviews ({selectedRecipe.reviews})
+                    </h2>
+
+                    <div className="mb-6">
+                      <textarea
+                        placeholder="Share your thoughts about this recipe..."
+                        rows={4}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
+                      />
+                      <div className="flex justify-between items-center mt-3">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              className="hover:scale-110 transition-transform"
+                            >
+                              <Star className="w-6 h-6 text-gray-300 hover:text-yellow-400 hover:fill-yellow-400" />
+                            </button>
+                          ))}
+                        </div>
+                        <button className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all font-medium">
+                          Post Review
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Sample Reviews */}
+                    <div className="space-y-4">
+                      {[
+                        {
+                          name: "John Smith",
+                          avatar: "👨",
+                          rating: 5,
+                          comment:
+                            "Absolutely delicious! The instructions were clear and easy to follow.",
+                          time: "2 days ago",
+                        },
+                        {
+                          name: "Sarah Lee",
+                          avatar: "👩",
+                          rating: 4,
+                          comment:
+                            "Great recipe! I added some extra garlic and it was perfect.",
+                          time: "1 week ago",
+                        },
+                        {
+                          name: "Mike Chen",
+                          avatar: "👨",
+                          rating: 5,
+                          comment:
+                            "Best recipe I've tried in a while. My family loved it!",
+                          time: "2 weeks ago",
+                        },
+                      ].map((review, index) => (
+                        <div key={index} className="p-4 bg-gray-50 rounded-xl">
+                          <div className="flex items-start gap-3 mb-2">
+                            <span className="text-3xl">{review.avatar}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-semibold text-gray-900">
+                                  {review.name}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {review.time}
+                                </span>
+                              </div>
+                              <div className="flex gap-1 mb-2">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`w-4 h-4 ${i < review.rating
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-gray-300"
+                                      }`}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-gray-700 text-sm">
+                                {review.comment}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Related Recipes */}
+                  <div className="mt-12 pt-8 border-t border-gray-200">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                      You Might Also Like
+                    </h2>
+                    <div className="grid sm:grid-cols-3 gap-4">
+                      {recipes
+                        .filter(
+                          (r) =>
+                            r.id !== selectedRecipe.id &&
+                            r.cuisine === selectedRecipe.cuisine
+                        )
+                        .slice(0, 3)
+                        .map((recipe) => (
+                          <div
+                            key={recipe.id}
+                            onClick={() => {
+                              setSelectedRecipe(recipe);
+                              setServings(recipe.servings);
+                              setCheckedIngredients([]);
+                              setCompletedSteps([]);
+                              window.scrollTo(0, 0);
+                            }}
+                            className="bg-linear-to-br from-orange-50 to-amber-50 rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all"
+                          >
+                            <div className="text-5xl mb-2 text-center">
+                              {recipe.image}
+                            </div>
+                            <h3 className="font-bold text-gray-900 text-center mb-1">
+                              {recipe.title}
+                            </h3>
+                            <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                              <Clock className="w-4 h-4" />
+                              {recipe.time}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {!selectedRecipe ? (
-          <>
-            {/* Recipe Grid Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {filteredRecipes.length} Recipes Found
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    viewMode === "grid"
-                      ? "bg-orange-500 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
-                  }`}
-                >
-                  Grid
-                </button>
-                <button
-                  onClick={() => setViewMode("masonry")}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    viewMode === "masonry"
-                      ? "bg-orange-500 text-white"
-                      : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
-                  }`}
-                >
-                  Masonry
-                </button>
-              </div>
-            </div>
-
-            {/* Recipe Grid*/}
-            <div
-              className={`grid gap-6 ${
-                viewMode === "grid"
-                  ? "sm:grid-cols-2 lg:grid-cols-3"
-                  : "sm:grid-cols-2 lg:grid-cols-3"
-              }`}
-            >
-              {filteredRecipes.map((recipe) => (
-                <div
-                  key={recipe.id}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 overflow-hidden group cursor-pointer"
-                  onClick={() => {
-                    setSelectedRecipe(recipe);
-                    setServings(recipe.servings);
-                    setCheckedIngredients([]);
-                    setCompletedSteps([]);
-                  }}
-                >
-                  {/* Recipe Image */}
-                  <div className="aspect-video bg-linear-to-br from-orange-100 to-amber-100 flex items-center justify-center text-8xl relative overflow-hidden">
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                    <img
-                      src={recipe.image}
-                      alt={recipe.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleSave(recipe.id.toString());
-                      }}
-                      className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
-                    >
-                      <Bookmark
-                        className={`w-5 h-5 ${
-                          savedRecipes.includes(recipe.id.toString())
-                            ? "fill-orange-500 text-orange-500"
-                            : "text-gray-600"
-                        }`}
-                      />
-                    </button>
-                    <div className="absolute top-4 left-4 flex gap-2">
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          recipe.difficulty === "Easy"
-                            ? "bg-green-500 text-white"
-                            : recipe.difficulty === "Medium"
-                            ? "bg-yellow-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
-                      >
-                        {recipe.difficulty}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Recipe Info */}
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">
-                        {recipe.cuisine}
-                      </span>{" "}
-                      {recipe.dietary !== "None" && (
-                        <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
-                          {recipe.dietary}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
-                      {recipe.title}
-                    </h3>
-
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="text-2xl">{recipe.authorAvatar}</span>
-                      <span className="text-sm text-gray-600">
-                        {recipe.author}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {recipe.time}
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {recipe.servings} servings
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        {recipe.rating}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" /> {recipe.likes}
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                          <MessageCircle className="w-4 h-4" /> {recipe.reviews}
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-4 h-4" /> {recipe.views}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {filteredRecipes.length === 0 && (
-              <div className="text-center py-20">
-                <div className="text-8xl mb-6">🔍</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  No recipes found
-                </h3>
-                <p className="text-gray-600">
-                  Try adjusting your filters or search query
-                </p>
-              </div>
-            )}
-          </>
-        ) : (
-          /* Recipe Detail View */
-          <div className="max-w-5xl mx-auto">
-            <button
-              onClick={() => setSelectedRecipe(null)}
-              className="mb-6 py-2 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
-            >
-              <X className="w-5 h-5 " /> Back to Recipes
-            </button>
-
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              {/* Recipe Header */}
-              <div className="relative aspect-21/9 bg-linear-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                <img
-                  src={selectedRecipe.image}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-6 right-6 flex gap-3">
-                  <button
-                    onClick={() => toggleSave(selectedRecipe.id)}
-                    className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Bookmark
-                      className={`w-6 h-6 ${
-                        savedRecipes.includes(selectedRecipe.id)
-                          ? "fill-orange-500 text-orange-500"
-                          : "text-gray-600"
-                      }`}
-                    />
-                  </button>
-
-                  <button className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors">
-                    <Share2 className="w-6 h-6 text-gray-600" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-8">
-                {/* Title and Meta */}
-                <div className="mb-6 pb-6 border-b border-gray-200">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                      {selectedRecipe.cuisine}
-                    </span>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        selectedRecipe.difficulty === "Easy"
-                          ? "bg-green-500 text-white"
-                          : selectedRecipe.difficulty === "Medium"
-                          ? "bg-yellow-500 text-white"
-                          : "bg-red-500 text-white"
-                      }`}
-                    >
-                      {selectedRecipe.difficulty}
-                    </span>
-                    {selectedRecipe.dietary !== "None" && (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                        {selectedRecipe.dietary}
-                      </span>
-                    )}
-                  </div>
-
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                    {selectedRecipe.title}
-                  </h1>
-
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl">
-                      {selectedRecipe.authorAvatar}
-                    </span>
-                    <div>
-                      <div className="font-semibold text-gray-900">
-                        {selectedRecipe.author}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Recipe Creator
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-700 leading-relaxed mb-6">
-                    {selectedRecipe.description}
-                  </p>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
-                        <Clock className="w-5 h-5" />
-                      </div>
-                      <div className="font-bold text-gray-900">
-                        {selectedRecipe.time}
-                      </div>
-                      <div className="text-xs text-gray-900">Total Time</div>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <div className="font-bold text-gray-900">
-                        {selectedRecipe.servings} servings
-                      </div>
-                      <div className="text-xs text-gray-600">Serves</div>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
-                        <Star className="W-5 h-5 fill-yellow-400 text-yellow-400" />
-                      </div>
-                      <div className="font-bold text-gray-900">
-                        {selectedRecipe.rating}
-                      </div>
-                      <div className="text-xs text-gray-600">
-                        {selectedRecipe.reviews} reviews
-                      </div>
-                    </div>
-
-                    <div className="text-center">
-                      <button
-                        onClick={() => toggleLike(selectedRecipe.id)}
-                        className="flex flex-col items-center w-full"
-                      >
-                        <Heart
-                          className={`w-5 h-5 mb-1 ${
-                            likedRecipes.includes(selectedRecipe.id)
-                              ? "fill-red-500 text-red-500"
-                              : "text-gray-600"
-                          }`}
-                        />
-                        <div className="font-bold text-gray-900">
-                          {selectedRecipe.likes}
-                        </div>
-                        <div className="text-xs text-gray-600">Likes</div>
-                      </button>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
-                        <Eye className="w-5 h-5" />
-                      </div>
-                      <div className="font-bold text-gray-900">
-                        {selectedRecipe.views}
-                      </div>
-                      <div className="text-xs text-gray-600">Views</div>
-                    </div>
-                  </div>
-                </div>
-                {/* ***** */}
-                {/* ingredients Section */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      Ingredients
-                    </h2>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-600">Servings:</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => adjustServings(-1)}
-                          className="p-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="font-bold text-lg w-8 text-center">
-                          {servings}
-                        </span>
-                        <button
-                          onClick={() => adjustServings(1)}
-                          className="p-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-linear-to-br from-orange-50 to-amber-50 rounded-xl p-6">
-                    <div className="space-y-3">
-                      {selectedRecipe.ingredients.map(
-                        (ingredient: any, index: number) => {
-                          const multiplier = servings / selectedRecipe.servings;
-                          const adjustedAmount = ingredient.amount.replace(
-                            /\d+/g,
-                            (match: any) =>
-                              Math.round(parseInt(match) * multiplier)
-                          );
-
-                          return (
-                            <label
-                              key={index}
-                              className="flex items-start gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={checkedIngredients.includes(index)}
-                                onChange={() => toggleIngredient(index)}
-                                className="mt-1 w-5 h-5 text-orange-500 rounded focus:ring-2 focus:ring-orange-400"
-                              />
-                              <div className="flex-1">
-                                <span
-                                  className={`font-medium ${
-                                    checkedIngredients.includes(index)
-                                      ? "line-through text-gray-400"
-                                      : "text-gray-900"
-                                  }`}
-                                >
-                                  {ingredient.item}
-                                </span>
-                                <span
-                                  className={`ml-2 ${
-                                    checkedIngredients.includes(index)
-                                      ? "line-through text-gray-400"
-                                      : "text-gray-600"
-                                  }`}
-                                >
-                                  - {adjustedAmount}
-                                </span>
-                              </div>
-                            </label>
-                          );
-                        }
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/* Instructions Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Instructions
-                  </h2>
-                  <div className="space-y-4">
-                    {selectedRecipe.steps.map((step: string, index: number) => (
-                      <div
-                        key={index}
-                        className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                      >
-                        {" "}
-                        <div className="shrink-0">
-                          {" "}
-                          <button
-                            onClick={() => toggleStep(index)}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                              completedSteps.includes(index)
-                                ? "bg-green-500 text-white"
-                                : "bg-white border-2 border-gray-300 text-gray-700"
-                            }`}
-                          >
-                            {completedSteps.includes(index) ? (
-                              <Check className="w-5 h-5" />
-                            ) : (
-                              index + 1
-                            )}
-                          </button>
-                        </div>
-                        <p
-                          className={`flex-1 leading-relaxed ${
-                            completedSteps.includes(index)
-                              ? "line-through text-gray-400"
-                              : "text-gray-700"
-                          }`}
-                        >
-                          {step}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Tags */}.
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Tags
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedRecipe.tags.map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors cursor-pointer"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {/* Comments Section */}
-                <div className="border-t border-gray-200 pt-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    Reviews ({selectedRecipe.reviews})
-                  </h2>
-
-                  <div className="mb-6">
-                    <textarea
-                      placeholder="Share your thoughts about this recipe..."
-                      rows={4}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
-                    />
-                    <div className="flex justify-between items-center mt-3">
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            className="hover:scale-110 transition-transform"
-                          >
-                            <Star className="w-6 h-6 text-gray-300 hover:text-yellow-400 hover:fill-yellow-400" />
-                          </button>
-                        ))}
-                      </div>
-                      <button className="px-6 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all font-medium">
-                        Post Review
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Sample Reviews */}
-                  <div className="space-y-4">
-                    {[
-                      {
-                        name: "John Smith",
-                        avatar: "👨",
-                        rating: 5,
-                        comment:
-                          "Absolutely delicious! The instructions were clear and easy to follow.",
-                        time: "2 days ago",
-                      },
-                      {
-                        name: "Sarah Lee",
-                        avatar: "👩",
-                        rating: 4,
-                        comment:
-                          "Great recipe! I added some extra garlic and it was perfect.",
-                        time: "1 week ago",
-                      },
-                      {
-                        name: "Mike Chen",
-                        avatar: "👨",
-                        rating: 5,
-                        comment:
-                          "Best recipe I've tried in a while. My family loved it!",
-                        time: "2 weeks ago",
-                      },
-                    ].map((review, index) => (
-                      <div key={index} className="p-4 bg-gray-50 rounded-xl">
-                        <div className="flex items-start gap-3 mb-2">
-                          <span className="text-3xl">{review.avatar}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-semibold text-gray-900">
-                                {review.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {review.time}
-                              </span>
-                            </div>
-                            <div className="flex gap-1 mb-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <p className="text-gray-700 text-sm">
-                              {review.comment}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Related Recipes */}
-                <div className="mt-12 pt-8 border-t border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    You Might Also Like
-                  </h2>
-                  <div className="grid sm:grid-cols-3 gap-4">
-                    {recipes
-                      .filter(
-                        (r) =>
-                          r.id !== selectedRecipe.id &&
-                          r.cuisine === selectedRecipe.cuisine
-                      )
-                      .slice(0, 3)
-                      .map((recipe) => (
-                        <div
-                          key={recipe.id}
-                          onClick={() => {
-                            setSelectedRecipe(recipe);
-                            setServings(recipe.servings);
-                            setCheckedIngredients([]);
-                            setCompletedSteps([]);
-                            window.scrollTo(0, 0);
-                          }}
-                          className="bg-linear-to-br from-orange-50 to-amber-50 rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all"
-                        >
-                          <div className="text-5xl mb-2 text-center">
-                            {recipe.image}
-                          </div>
-                          <h3 className="font-bold text-gray-900 text-center mb-1">
-                            {recipe.title}
-                          </h3>
-                          <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                            <Clock className="w-4 h-4" />
-                            {recipe.time}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
