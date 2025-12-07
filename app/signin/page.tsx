@@ -5,9 +5,12 @@ import { loginUser } from "@/src/services/authService";
 import { message } from "antd";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignInPage() {
   const [messageApi, contextHolder] = message.useMessage();
+  const { login } = useAuth();
+
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,7 +62,8 @@ export default function SignInPage() {
         email: formData.email,
         password: formData.password,
       });
-      console.log(response);
+
+      login(response.user);
       messageApi.open({
         type: "success",
         content: "User successfully logged in",

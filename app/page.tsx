@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+
 //sample data
 
 const foodImages = [
@@ -53,7 +55,7 @@ const topRecipes = [
     id: 2,
     title: "Japanese Ramen Bowl",
     image:
-      "https://lh6.googleusercontent.com/proxy/8mn6G7jVa-ZMyi6Hn_eCRA9BizWevDfmHePgS18GHjWZ7iu09rROECkS0vGrhZvr0aNWIT6r4z6sV4_BbjQ_dNFNQp1AzJuZUTr4Pv_MmgfXp-PJPU8BAT-gGmgUmWyUHy7M8OxbJBVz3WdwDUhRnr6Dfx_1ENzG3CE9EdNfdbLrBq4k2gUURqvQV_Js2pc6m4qP3Dnhq7LZwlA2nZDK",
+      "https://d2rdhxfof4qmbb.cloudfront.net/wp-content/uploads/20180323163421/Ramen.jpg",
     author: "kenji Tanaka",
     time: "45 mins",
     rating: 4.5,
@@ -186,6 +188,16 @@ const foodies = [
 
 export default function Page() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const handleProtectedNavigation = (path: string) => {
+    if (!isAuthenticated) {
+      // Store the intended destination
+      localStorage.setItem("redirectAfterLogin", path);
+      router.push("/signin");
+    } else {
+      router.push(path);
+    }
+  };
 
   const [currentSlide, setCurrentSlide] = useState<number>(0);
 
@@ -223,14 +235,14 @@ export default function Page() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <button
-                  onClick={() => router.push("/recipe")}
+                  onClick={() => handleProtectedNavigation("/recipe")}
                   className="px-8 py-4 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg shadow-orange-200 font-semibold text-lg flex items-center justify-center gap-2"
                 >
                   <BookOpen className="w-5 h-5" />
                   Explore Recipes
                 </button>
                 <button
-                  onClick={() => router.push("/community-chat")}
+                  onClick={() => handleProtectedNavigation("/community-chat")}
                   className="px-8 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-full hover:border-orange-400 hover:bg-orange-50 transition-all font-semibold text-lg flex items-center justify-center gap-2"
                 >
                   <Users className="w-5 h-5 " />
@@ -410,7 +422,9 @@ export default function Page() {
                             </div>
                           </div>
                           <button
-                            onClick={() => router.push("/restaurant")}
+                            onClick={() =>
+                              handleProtectedNavigation("/restaurant")
+                            }
                             className="w-full px-6 py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-semibold"
                           >
                             View Details
@@ -540,7 +554,7 @@ export default function Page() {
             recipes worldwide
           </p>
           <button
-            onClick={() => router.push("/auth")}
+            onClick={() => router.push("/signup")}
             className="px-8 py-4 bg-white text-orange-600 rounded-full hover:bg-gray-50 transition-all shadow-xl font-semibold text-lg"
           >
             Create Free Account

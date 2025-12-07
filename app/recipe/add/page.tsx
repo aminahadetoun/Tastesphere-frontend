@@ -148,12 +148,12 @@ export default function AddRecipePage() {
 
       const recipeData = {
         ...formData,
-        ingredients: validIngredients,
+        ingredientList: validIngredients,
         steps: validSteps,
         tags: formData.tags
           .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag),
+          .map((tag: String) => tag.trim())
+          .filter((tag: String) => tag),
       };
 
       console.log("Recipe Data:", recipeData);
@@ -230,7 +230,7 @@ export default function AddRecipePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Recipe Title <span className="text-red-500">*</span>
+                  Recipe Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -238,8 +238,9 @@ export default function AddRecipePage() {
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="e.g., Authentic Italian Carbonara"
-                  className={`w-full px-4 py-3 border-2 ${errors.title ? "border-red-400" : "border-gray-200"
-                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                  className={`w-full px-4 py-3 border-2 ${
+                    errors.title ? "border-red-400" : "border-gray-200"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                 />
               </div>
 
@@ -253,8 +254,9 @@ export default function AddRecipePage() {
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Share what makes this recipe special..."
-                  className={`w-full px-4 py-3 border-2 ${errors.description ? "border-red-400" : "border-gray-200"
-                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none`}
+                  className={`w-full px-4 py-3 border-2 ${
+                    errors.description ? "border-red-400" : "border-gray-200"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none`}
                 />
               </div>
 
@@ -267,8 +269,9 @@ export default function AddRecipePage() {
                     name="cuisine"
                     value={formData.cuisine}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border-2 ${errors.cuisine ? "border-red-400" : "border-gray-200"
-                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                    className={`w-full px-4 py-3 border-2 ${
+                      errors.cuisine ? "border-red-400" : "border-gray-200"
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                   >
                     <option value="">Select cuisine...</option>
                     {cuisineTypes.map((type) => (
@@ -287,8 +290,9 @@ export default function AddRecipePage() {
                     name="difficulty"
                     value={formData.difficulty}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border-2 ${errors.difficulty ? "border-red-400" : "border-gray-200"
-                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                    className={`w-full px-4 py-3 border-2 ${
+                      errors.difficulty ? "border-red-400" : "border-gray-200"
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                   >
                     <option value="">Select difficulty...</option>
                     {difficulties.map((diff) => (
@@ -332,8 +336,9 @@ export default function AddRecipePage() {
                       onChange={handleInputChange}
                       min="1"
                       placeholder="4"
-                      className={`w-full pl-12 pr-4 py-3 border-2 ${errors.servings ? "border-red-400" : "border-gray-200"
-                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                      className={`w-full pl-12 pr-4 py-3 border-2 ${
+                        errors.servings ? "border-red-400" : "border-gray-200"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                     />
                   </div>
                 </div>
@@ -350,8 +355,9 @@ export default function AddRecipePage() {
                       value={formData.prepTime}
                       onChange={handleInputChange}
                       placeholder="e.g., 15 min"
-                      className={`w-full pl-12 pr-4 py-3 border-2 ${errors.prepTime ? "border-red-400" : "border-gray-200"
-                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                      className={`w-full pl-12 pr-4 py-3 border-2 ${
+                        errors.prepTime ? "border-red-400" : "border-gray-200"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                     />
                   </div>
                 </div>
@@ -368,8 +374,9 @@ export default function AddRecipePage() {
                       value={formData.cookTime}
                       onChange={handleInputChange}
                       placeholder="e.g., 30 min"
-                      className={`w-full pl-12 pr-4 py-3 border-2 ${errors.cookTime ? "border-red-400" : "border-gray-200"
-                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
+                      className={`w-full pl-12 pr-4 py-3 border-2 ${
+                        errors.cookTime ? "border-red-400" : "border-gray-200"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`}
                     />
                   </div>
                 </div>
@@ -473,8 +480,9 @@ export default function AddRecipePage() {
                     </div>
                     <textarea
                       rows={2}
-                      placeholder={`Step ${index + 1
-                        }: Describe this cooking step in detail...`}
+                      placeholder={`Step ${
+                        index + 1
+                      }: Describe this cooking step in detail...`}
                       value={step}
                       onChange={(e) => handleStepChange(index, e.target.value)}
                       className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"

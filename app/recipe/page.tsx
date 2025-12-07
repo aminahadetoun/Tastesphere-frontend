@@ -20,6 +20,7 @@ import {
 import { fetchAllRecipes } from "@/src/services/recipeService";
 import { message } from "antd";
 import useDebounced from "@/src/hooks/useDebounced";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const tempRecipes = [
   {
@@ -318,16 +319,18 @@ export default function Page() {
           filters = { ...filters, q: `search:${debouncedSearchQuery}` };
         }
 
-        const res = await fetchAllRecipes(filters)
+        const res = await fetchAllRecipes(filters);
+        console.log("recipeResponse", res);
+
         if (res && Array.isArray(res.data)) {
           setRecipes(res.data);
         }
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
-        setRecipes([])
+        setRecipes([]);
         messageApi.error("Failed to fetch recipes. Please try again later.");
       }
-    }
+    };
 
     fetchRecipes();
   }, [debouncedSearchQuery]); // Fetch recipes from API in real implementation
@@ -399,7 +402,7 @@ export default function Page() {
   });
 
   return (
-    <>
+    <ProtectedRoute>
       {contextHolder}
       <section className="min-h-screen bg-linear-to-b  from-orange-50 via-white to-amber-50">
         {/* Header */}
@@ -554,19 +557,21 @@ export default function Page() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${viewMode === "grid"
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      viewMode === "grid"
                         ? "bg-orange-500 text-white"
                         : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
-                      }`}
+                    }`}
                   >
                     Grid
                   </button>
                   <button
                     onClick={() => setViewMode("masonry")}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${viewMode === "masonry"
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      viewMode === "masonry"
                         ? "bg-orange-500 text-white"
                         : "bg-white text-gray-700 border border-gray-200 hover:border-orange-400"
-                      }`}
+                    }`}
                   >
                     Masonry
                   </button>
@@ -575,10 +580,11 @@ export default function Page() {
 
               {/* Recipe Grid*/}
               <div
-                className={`grid gap-6 ${viewMode === "grid"
+                className={`grid gap-6 ${
+                  viewMode === "grid"
                     ? "sm:grid-cols-2 lg:grid-cols-3"
                     : "sm:grid-cols-2 lg:grid-cols-3"
-                  }`}
+                }`}
               >
                 {filteredRecipes.map((recipe) => (
                   <div
@@ -607,20 +613,22 @@ export default function Page() {
                         className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
                       >
                         <Bookmark
-                          className={`w-5 h-5 ${savedRecipes.includes(recipe.id.toString())
+                          className={`w-5 h-5 ${
+                            savedRecipes.includes(recipe.id.toString())
                               ? "fill-orange-500 text-orange-500"
                               : "text-gray-600"
-                            }`}
+                          }`}
                         />
                       </button>
                       <div className="absolute top-4 left-4 flex gap-2">
                         <span
-                          className={`text-xs px-3 py-1 rounded-full font-medium ${recipe.difficulty === "Easy"
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${
+                            recipe.difficulty === "Easy"
                               ? "bg-green-500 text-white"
                               : recipe.difficulty === "Medium"
-                                ? "bg-yellow-500 text-white"
-                                : "bg-red-500 text-white"
-                            }`}
+                              ? "bg-yellow-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
                         >
                           {recipe.difficulty}
                         </span>
@@ -675,7 +683,8 @@ export default function Page() {
                           </div>
 
                           <div className="flex items-center gap-1">
-                            <MessageCircle className="w-4 h-4" /> {recipe.reviews}
+                            <MessageCircle className="w-4 h-4" />{" "}
+                            {recipe.reviews}
                           </div>
 
                           <div className="flex items-center gap-1">
@@ -723,10 +732,11 @@ export default function Page() {
                       className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
                     >
                       <Bookmark
-                        className={`w-6 h-6 ${savedRecipes.includes(selectedRecipe.id)
+                        className={`w-6 h-6 ${
+                          savedRecipes.includes(selectedRecipe.id)
                             ? "fill-orange-500 text-orange-500"
                             : "text-gray-600"
-                          }`}
+                        }`}
                       />
                     </button>
 
@@ -745,12 +755,13 @@ export default function Page() {
                       </span>
 
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${selectedRecipe.difficulty === "Easy"
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          selectedRecipe.difficulty === "Easy"
                             ? "bg-green-500 text-white"
                             : selectedRecipe.difficulty === "Medium"
-                              ? "bg-yellow-500 text-white"
-                              : "bg-red-500 text-white"
-                          }`}
+                            ? "bg-yellow-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
                       >
                         {selectedRecipe.difficulty}
                       </span>
@@ -823,10 +834,11 @@ export default function Page() {
                           className="flex flex-col items-center w-full"
                         >
                           <Heart
-                            className={`w-5 h-5 mb-1 ${likedRecipes.includes(selectedRecipe.id)
+                            className={`w-5 h-5 mb-1 ${
+                              likedRecipes.includes(selectedRecipe.id)
                                 ? "fill-red-500 text-red-500"
                                 : "text-gray-600"
-                              }`}
+                            }`}
                           />
                           <div className="font-bold text-gray-900">
                             {selectedRecipe.likes}
@@ -879,7 +891,8 @@ export default function Page() {
                       <div className="space-y-3">
                         {selectedRecipe.ingredients.map(
                           (ingredient: any, index: number) => {
-                            const multiplier = servings / selectedRecipe.servings;
+                            const multiplier =
+                              servings / selectedRecipe.servings;
                             const adjustedAmount = ingredient.amount.replace(
                               /\d+/g,
                               (match: any) =>
@@ -899,18 +912,20 @@ export default function Page() {
                                 />
                                 <div className="flex-1">
                                   <span
-                                    className={`font-medium ${checkedIngredients.includes(index)
+                                    className={`font-medium ${
+                                      checkedIngredients.includes(index)
                                         ? "line-through text-gray-400"
                                         : "text-gray-900"
-                                      }`}
+                                    }`}
                                   >
                                     {ingredient.item}
                                   </span>
                                   <span
-                                    className={`ml-2 ${checkedIngredients.includes(index)
+                                    className={`ml-2 ${
+                                      checkedIngredients.includes(index)
                                         ? "line-through text-gray-400"
                                         : "text-gray-600"
-                                      }`}
+                                    }`}
                                   >
                                     - {adjustedAmount}
                                   </span>
@@ -928,38 +943,42 @@ export default function Page() {
                       Instructions
                     </h2>
                     <div className="space-y-4">
-                      {selectedRecipe.steps.map((step: string, index: number) => (
-                        <div
-                          key={index}
-                          className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                        >
-                          {" "}
-                          <div className="shrink-0">
-                            {" "}
-                            <button
-                              onClick={() => toggleStep(index)}
-                              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${completedSteps.includes(index)
-                                  ? "bg-green-500 text-white"
-                                  : "bg-white border-2 border-gray-300 text-gray-700"
-                                }`}
-                            >
-                              {completedSteps.includes(index) ? (
-                                <Check className="w-5 h-5" />
-                              ) : (
-                                index + 1
-                              )}
-                            </button>
-                          </div>
-                          <p
-                            className={`flex-1 leading-relaxed ${completedSteps.includes(index)
-                                ? "line-through text-gray-400"
-                                : "text-gray-700"
-                              }`}
+                      {selectedRecipe.steps.map(
+                        (step: string, index: number) => (
+                          <div
+                            key={index}
+                            className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                           >
-                            {step}
-                          </p>
-                        </div>
-                      ))}
+                            {" "}
+                            <div className="shrink-0">
+                              {" "}
+                              <button
+                                onClick={() => toggleStep(index)}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+                                  completedSteps.includes(index)
+                                    ? "bg-green-500 text-white"
+                                    : "bg-white border-2 border-gray-300 text-gray-700"
+                                }`}
+                              >
+                                {completedSteps.includes(index) ? (
+                                  <Check className="w-5 h-5" />
+                                ) : (
+                                  index + 1
+                                )}
+                              </button>
+                            </div>
+                            <p
+                              className={`flex-1 leading-relaxed ${
+                                completedSteps.includes(index)
+                                  ? "line-through text-gray-400"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              {step}
+                            </p>
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
                   {/* Tags */}.
@@ -1051,10 +1070,11 @@ export default function Page() {
                                 {[...Array(5)].map((_, i) => (
                                   <Star
                                     key={i}
-                                    className={`w-4 h-4 ${i < review.rating
+                                    className={`w-4 h-4 ${
+                                      i < review.rating
                                         ? "fill-yellow-400 text-yellow-400"
                                         : "text-gray-300"
-                                      }`}
+                                    }`}
                                   />
                                 ))}
                               </div>
@@ -1112,6 +1132,6 @@ export default function Page() {
           )}
         </div>
       </section>
-    </>
+    </ProtectedRoute>
   );
 }

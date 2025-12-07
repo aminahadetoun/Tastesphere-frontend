@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { features } from "process";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const restaurants = [
   {
@@ -285,473 +286,478 @@ export default function Page() {
     }
   };
   return (
-    <section className="h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm z-20">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🍽️ </span>
-              <h1 className="text-2xl font-bold bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                Restaurant Explorer
-              </h1>
+    <ProtectedRoute>
+      <section className="h-screen flex flex-col bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm z-20">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🍽️ </span>
+                <h1 className="text-2xl font-bold bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  Restaurant Explorer
+                </h1>
+              </div>
+              <button
+                onClick={() => router.push("/restaurant/add")}
+                className="px-4 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium"
+              >
+                Add Restaurant
+              </button>
             </div>
-            <button
-              onClick={() => router.push("/restaurant/add")}
-              className="px-4 py-2 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-full hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-medium"
-            >
-              Add Restaurant
-            </button>
-          </div>
 
-          {/* search and Filter Bar */}
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search restaurants, cuisines, or locations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              />
+            {/* search and Filter Bar */}
+            <div className="flex gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search restaurants, cuisines, or locations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="px-6 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
+              >
+                <Filter className="w-5 h-5" />
+                Filters
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-6 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 transition-all flex items-center gap-2 font-medium"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
-          </div>
 
-          {/* Filter panel */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="grid md:grid-cols-5 gap-4">
-                <div>
-                  {/* Cuisine */}
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cuisine
-                  </label>
-                  <select
-                    value={filters.cuisine}
-                    onChange={(e) =>
-                      setFilters({ ...filters, cuisine: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {cuisineTypes.map((type) => (
-                      <option key={type} value={type.toLowerCase()}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* price range */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Range
-                  </label>
-                  <select
-                    value={filters.priceRange}
-                    onChange={(e) =>
-                      setFilters({ ...filters, priceRange: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {priceRanges.map((range) => (
-                      <option key={range} value={range.toLowerCase()}>
-                        {range}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* rating */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rating
-                  </label>
-                  <select
-                    value={filters.rating}
-                    onChange={(e) =>
-                      setFilters({ ...filters, rating: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {ratingFilters.map((rating) => (
-                      <option key={rating} value={rating}>
-                        {rating}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* Distance */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Distance
-                  </label>
-                  <select
-                    value={filters.distance}
-                    onChange={(e) =>
-                      setFilters({ ...filters, distance: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  >
-                    {distanceFilters.map((dist) => (
-                      <option key={dist} value={dist}>
-                        {dist}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Open Now
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={filters.openNow}
+            {/* Filter panel */}
+            {showFilters && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="grid md:grid-cols-5 gap-4">
+                  <div>
+                    {/* Cuisine */}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cuisine
+                    </label>
+                    <select
+                      value={filters.cuisine}
                       onChange={(e) =>
-                        setFilters({ ...filters, openNow: e.target.checked })
+                        setFilters({ ...filters, cuisine: e.target.value })
                       }
-                      className="w-5 h-5 text-orange-500 rounded focus:ring-2 focus:ring-orange-400"
-                    />
-                    <span>Only show open</span>
-                  </label>
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {cuisineTypes.map((type) => (
+                        <option key={type} value={type.toLowerCase()}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* price range */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price Range
+                    </label>
+                    <select
+                      value={filters.priceRange}
+                      onChange={(e) =>
+                        setFilters({ ...filters, priceRange: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {priceRanges.map((range) => (
+                        <option key={range} value={range.toLowerCase()}>
+                          {range}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* rating */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rating
+                    </label>
+                    <select
+                      value={filters.rating}
+                      onChange={(e) =>
+                        setFilters({ ...filters, rating: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {ratingFilters.map((rating) => (
+                        <option key={rating} value={rating}>
+                          {rating}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* Distance */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Distance
+                    </label>
+                    <select
+                      value={filters.distance}
+                      onChange={(e) =>
+                        setFilters({ ...filters, distance: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    >
+                      {distanceFilters.map((dist) => (
+                        <option key={dist} value={dist}>
+                          {dist}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Open Now
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.openNow}
+                        onChange={(e) =>
+                          setFilters({ ...filters, openNow: e.target.checked })
+                        }
+                        className="w-5 h-5 text-orange-500 rounded focus:ring-2 focus:ring-orange-400"
+                      />
+                      <span>Only show open</span>
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </header>
+            )}
+          </div>
+        </header>
 
-      {/* Main content */}
-      <div className=" flex-1 flex overflow-hidden">
-        {/* sidebar - Restaurant List */}
-        <div className="w-full md:w-2/5 lg:w-1/3 bg-white border-r border-gray-200 overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {filteredRestaurants.length} Restaurants Found
-              </h2>
-            </div>
+        {/* Main content */}
+        <div className=" flex-1 flex overflow-hidden">
+          {/* sidebar - Restaurant List */}
+          <div className="w-full md:w-2/5 lg:w-1/3 bg-white border-r border-gray-200 overflow-y-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {filteredRestaurants.length} Restaurants Found
+                </h2>
+              </div>
 
-            <div className="space-y-3">
-              {filteredRestaurants.map((restaurant) => (
-                <div
-                  key={restaurant.id}
-                  onClick={() => {
-                    setSelectedRestaurant(restaurant);
-                    setCurrentImageIndex(0);
-                  }}
-                  className={`p-4 rounded-xl cursor-pointer transition-all ${
-                    selectedRestaurant?.id === restaurant.id
-                      ? "bg-linear-to-r from-orange-50 to-amber-50 border-2 border-orange-400"
-                      : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
-                  }`}
-                >
-                  <div className="flex gap-4">
-                    <img
-                      src={restaurant.image}
-                      className="w-20 h-20 bg-linear-to-br from-orange-100 to-amber-100 rounded-xl flex items-center justify-center text-4xl shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="font-bold text-gray-900 truncate">
-                          {restaurant.name}
-                        </h3>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleSave(restaurant.id.toString());
-                          }}
-                          className="shrink-0"
-                        >
-                          <Heart
-                            className={`w-5 h-5 ${
-                              savedRestaurants.includes(
-                                restaurant.id.toString()
-                              )
-                                ? "fill-red-500 text-red-500"
-                                : "text-gray-400 hover:text-red-500"
-                            }`}
-                          />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span>{restaurant.cuisine}</span>
-                        <span>{restaurant.priceRange}</span>
-                        {restaurant.openNow && (
-                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
-                            Open
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-semibold">
-                            {restaurant.rating}
-                          </span>
-                          <span className="text-xs">{restaurant.reviews}</span>
+              <div className="space-y-3">
+                {filteredRestaurants.map((restaurant) => (
+                  <div
+                    key={restaurant.id}
+                    onClick={() => {
+                      setSelectedRestaurant(restaurant);
+                      setCurrentImageIndex(0);
+                    }}
+                    className={`p-4 rounded-xl cursor-pointer transition-all ${
+                      selectedRestaurant?.id === restaurant.id
+                        ? "bg-linear-to-r from-orange-50 to-amber-50 border-2 border-orange-400"
+                        : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
+                    }`}
+                  >
+                    <div className="flex gap-4">
+                      <img
+                        src={restaurant.image}
+                        className="w-20 h-20 bg-linear-to-br from-orange-100 to-amber-100 rounded-xl flex items-center justify-center text-4xl shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="font-bold text-gray-900 truncate">
+                            {restaurant.name}
+                          </h3>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSave(restaurant.id.toString());
+                            }}
+                            className="shrink-0"
+                          >
+                            <Heart
+                              className={`w-5 h-5 ${
+                                savedRestaurants.includes(
+                                  restaurant.id.toString()
+                                )
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-gray-400 hover:text-red-500"
+                              }`}
+                            />
+                          </button>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{restaurant.distance}</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span>{restaurant.cuisine}</span>
+                          <span>{restaurant.priceRange}</span>
+                          {restaurant.openNow && (
+                            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                              Open
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-semibold">
+                              {restaurant.rating}
+                            </span>
+                            <span className="text-xs">
+                              {restaurant.reviews}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            <span>{restaurant.distance}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              {filteredRestaurants.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    No restaurant found
-                  </h3>
-                  <p className="text-gray-600">
-                    Try adjusting your filters or search query
-                  </p>
-                </div>
-              )}
+                {filteredRestaurants.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      No restaurant found
+                    </h3>
+                    <p className="text-gray-600">
+                      Try adjusting your filters or search query
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Map/Detail View */}
-        <div className="flex-1 relative bg-linear-to-br from-orange-50 via-amber-50 to-yellow-50">
-          {selectedRestaurant ? (
-            <div className="absolute inset-0 overflow-y-auto">
-              <div className="max-w-4xl mx-auto p-6">
-                {/* Close Button */}
-                <button
-                  onClick={() => setSelectedRestaurant(null)}
-                  className="mb-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+          {/* Map/Detail View */}
+          <div className="flex-1 relative bg-linear-to-br from-orange-50 via-amber-50 to-yellow-50">
+            {selectedRestaurant ? (
+              <div className="absolute inset-0 overflow-y-auto">
+                <div className="max-w-4xl mx-auto p-6">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setSelectedRestaurant(null)}
+                    className="mb-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
 
-                {/* Restaurant detail card */}
-                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                  {/* Image Gallery */}
-                  <div className="relative aspect-video bg-linear-to-br from-orange-100 to-amber-100">
-                    <div className="absolute inset-0 flex items-center justify-center text-9xl">
-                      <img
-                        src={selectedRestaurant.images[currentImageIndex]}
-                        alt={`Image ${currentImageIndex + 1} of ${
-                          selectedRestaurant.name
-                        }`}
-                        className="w-full h-full object-cover rounded-2xl"
-                      />
+                  {/* Restaurant detail card */}
+                  <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    {/* Image Gallery */}
+                    <div className="relative aspect-video bg-linear-to-br from-orange-100 to-amber-100">
+                      <div className="absolute inset-0 flex items-center justify-center text-9xl">
+                        <img
+                          src={selectedRestaurant.images[currentImageIndex]}
+                          alt={`Image ${currentImageIndex + 1} of ${
+                            selectedRestaurant.name
+                          }`}
+                          className="w-full h-full object-cover rounded-2xl"
+                        />
+                      </div>
+                      {selectedRestaurant.images.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevImage}
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
+                          >
+                            <ChevronLeft className="w-6 h-6" />
+                          </button>
+                          <button
+                            onClick={nextImage}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
+                          >
+                            <ChevronRight className="w-6 h-6" />
+                          </button>
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                            {selectedRestaurant.images.map(
+                              (_: any, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className={`w-2 h-2 rounded-full ${
+                                    idx === currentImageIndex
+                                      ? "bg-white w-6"
+                                      : "bg-white/50"
+                                  }`}
+                                />
+                              )
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
-                    {selectedRestaurant.images.length > 1 && (
-                      <>
-                        <button
-                          onClick={prevImage}
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
-                        >
-                          <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <button
-                          onClick={nextImage}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
-                        >
-                          <ChevronRight className="w-6 h-6" />
-                        </button>
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                          {selectedRestaurant.images.map(
-                            (_: any, idx: number) => (
-                              <div
+
+                    {/* Restaurant Info */}
+                    <div className="p-8">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            {selectedRestaurant.name}
+                          </h2>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                              {selectedRestaurant.cuisine}
+                            </span>
+                            <span className="text-gray-600">
+                              {selectedRestaurant.priceRange}
+                            </span>
+                            {selectedRestaurant.openNow && (
+                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                Open Now
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => toggleSave(selectedRestaurant.id)}
+                            className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <Bookmark
+                              className={`w-5 h-5 ${
+                                savedRestaurants.includes(selectedRestaurant.id)
+                                  ? "fill-orange-500 text-orange-500"
+                                  : "text-gray-600"
+                              }`}
+                            />
+                          </button>
+                          <button className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <Share2 className="w-5 h-5 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-2 mb-6 pb-6 border-b border-gray-200">
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-5 h-5 ${
+                                i < Math.floor(selectedRestaurant.rating)
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="font-bold text-xl">
+                          {selectedRestaurant.rating}
+                        </span>
+                        <span className="text-gray-600">
+                          {selectedRestaurant.reviews}
+                        </span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-gray-700 mb-6 leading-relaxed">
+                        {selectedRestaurant.description}
+                      </p>
+
+                      {/* Details Grid */}
+                      <div className="grid md:grid-cols-2 gap-4 mb-6">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              Address
+                            </div>
+                            <div className="text-gray-600">
+                              {selectedRestaurant.address}
+                            </div>
+                            <div className="text-sm text-orange-600 mt-1">
+                              {selectedRestaurant.distance} away
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <Clock className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              Hours
+                            </div>
+                            <div className="text-gray-600">
+                              {selectedRestaurant.hours}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <Phone className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              Phone
+                            </div>
+                            <div className="text-gray-600">
+                              {selectedRestaurant.phone}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <DollarSign className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              Price Range
+                            </div>
+                            <div className="text-gray-600">
+                              {selectedRestaurant.priceRange}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Features */}
+                      <div className="mb-6">
+                        <h3 className="font-semibold text-gray-900 mb-3">
+                          Features
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedRestaurant.features.map(
+                            (features: any, idx: number) => (
+                              <span
                                 key={idx}
-                                className={`w-2 h-2 rounded-full ${
-                                  idx === currentImageIndex
-                                    ? "bg-white w-6"
-                                    : "bg-white/50"
-                                }`}
-                              />
+                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                              >
+                                {features}
+                              </span>
                             )
                           )}
                         </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Restaurant Info */}
-                  <div className="p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                          {selectedRestaurant.name}
-                        </h2>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                            {selectedRestaurant.cuisine}
-                          </span>
-                          <span className="text-gray-600">
-                            {selectedRestaurant.priceRange}
-                          </span>
-                          {selectedRestaurant.openNow && (
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                              Open Now
-                            </span>
-                          )}
-                        </div>
                       </div>
 
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => toggleSave(selectedRestaurant.id)}
-                          className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-                        >
-                          <Bookmark
-                            className={`w-5 h-5 ${
-                              savedRestaurants.includes(selectedRestaurant.id)
-                                ? "fill-orange-500 text-orange-500"
-                                : "text-gray-600"
-                            }`}
-                          />
+                      {/* Action Buttons */}
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <button className="px-6 py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-semibold flex items-center justify-center gap-2">
+                          <Navigation className="w-5 h-6" /> Get Directions
                         </button>
-                        <button className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                          <Share2 className="w-5 h-5 text-gray-600" />
+                        <button className="px-6 py-3 bg-white border-2 border-orange-400 text-orange-600 rounded-xl hover:bg-orange-50 transition-all font-semibold">
+                          {" "}
+                          Add Review
                         </button>
                       </div>
-                    </div>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 mb-6 pb-6 border-b border-gray-200">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-5 h-5 ${
-                              i < Math.floor(selectedRestaurant.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="font-bold text-xl">
-                        {selectedRestaurant.rating}
-                      </span>
-                      <span className="text-gray-600">
-                        {selectedRestaurant.reviews}
-                      </span>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-gray-700 mb-6 leading-relaxed">
-                      {selectedRestaurant.description}
-                    </p>
-
-                    {/* Details Grid */}
-                    <div className="grid md:grid-cols-2 gap-4 mb-6">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            Address
-                          </div>
-                          <div className="text-gray-600">
-                            {selectedRestaurant.address}
-                          </div>
-                          <div className="text-sm text-orange-600 mt-1">
-                            {selectedRestaurant.distance} away
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            Hours
-                          </div>
-                          <div className="text-gray-600">
-                            {selectedRestaurant.hours}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <Phone className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            Phone
-                          </div>
-                          <div className="text-gray-600">
-                            {selectedRestaurant.phone}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <DollarSign className="w-5 h-5 text-orange-500 mt-1 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            Price Range
-                          </div>
-                          <div className="text-gray-600">
-                            {selectedRestaurant.priceRange}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Features */}
-                    <div className="mb-6">
-                      <h3 className="font-semibold text-gray-900 mb-3">
-                        Features
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedRestaurant.features.map(
-                          (features: any, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                            >
-                              {features}
-                            </span>
-                          )
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <button className="px-6 py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg font-semibold flex items-center justify-center gap-2">
-                        <Navigation className="w-5 h-6" /> Get Directions
-                      </button>
-                      <button className="px-6 py-3 bg-white border-2 border-orange-400 text-orange-600 rounded-xl hover:bg-orange-50 transition-all font-semibold">
-                        {" "}
-                        Add Review
-                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              {/* Map Placeholder */}
-              <div className="text-center">
-                <div className="text-8xl mb-6">🗺️</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Select a restaurant to view details
-                </h3>
-                <p className="text-gray-600">
-                  Click on any restaurant from the list to see more information
-                </p>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                {/* Map Placeholder */}
+                <div className="text-center">
+                  <div className="text-8xl mb-6">🗺️</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    Select a restaurant to view details
+                  </h3>
+                  <p className="text-gray-600">
+                    Click on any restaurant from the list to see more
+                    information
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </ProtectedRoute>
   );
 }
