@@ -21,6 +21,7 @@ import { fetchAllRecipes } from "@/src/services/recipeService";
 import { message } from "antd";
 import useDebounced from "@/src/hooks/useDebounced";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Loading from "@/components/Loading";
 
 const tempRecipes = [
   {
@@ -122,14 +123,14 @@ const tempRecipes = [
     description:
       "Authentic street-style tacos with marinated meat, fresh cilantro, and lime.",
     ingredients: [
-      { item: "Flank steak", amount: "500g" },
-      { item: "Corn tortillas", amount: "12" },
-      { item: "White onion", amount: "1, diced" },
-      { item: "Fresh cilantro", amount: "1 bunch, chopped" },
-      { item: "Limes", amount: "3, cut into wedges" },
-      { item: "Garlic", amount: "3 cloves, minced" },
-      { item: "Cumin", amount: "1 tsp" },
-      { item: "Chili powder", amount: "1 tsp" },
+      { ingredientName: "Flank steak", amount: "500g" },
+      { ingredientName: "Corn tortillas", amount: "12" },
+      { ingredientName: "White onion", amount: "1, diced" },
+      { ingredientName: "Fresh cilantro", amount: "1 bunch, chopped" },
+      { ingredientName: "Limes", amount: "3, cut into wedges" },
+      { ingredientName: "Garlic", amount: "3 cloves, minced" },
+      { ingredientName: "Cumin", amount: "1 tsp" },
+      { ingredientName: "Chili powder", amount: "1 tsp" },
     ],
     steps: [
       "Marinate steak with garlic, cumin, chili powder, and lime juice for 15 minutes.",
@@ -163,13 +164,13 @@ const tempRecipes = [
     description:
       "Buttery, flaky, golden croissants made from scratch with laminated dough.",
     ingredients: [
-      { item: "All-purpose flour", amount: "500g" },
-      { item: "Butter (cold)", amount: "280g" },
-      { item: "Milk (warm)", amount: "250ml" },
-      { item: "Sugar", amount: "50g" },
-      { item: "Salt", amount: "10g" },
-      { item: "Instant yeast", amount: "10g" },
-      { item: "Egg", amount: "1, for egg wash" },
+      { ingredientName: "All-purpose flour", amount: "500g" },
+      { ingredientName: "Butter (cold)", amount: "280g" },
+      { ingredientName: "Milk (warm)", amount: "250ml" },
+      { ingredientName: "Sugar", amount: "50g" },
+      { ingredientName: "Salt", amount: "10g" },
+      { ingredientName: "Instant yeast", amount: "10g" },
+      { ingredientName: "Egg", amount: "1, for egg wash" },
     ],
     steps: [
       "Mix flour, sugar, salt, yeast, and warm milk. Knead into smooth dough.",
@@ -203,14 +204,14 @@ const tempRecipes = [
     description:
       "Aromatic and spicy Thai curry with coconut milk, vegetables, and your choice of protein.",
     ingredients: [
-      { item: "Green curry paste", amount: "3 tbsp" },
-      { item: "Coconut milk", amount: "400ml" },
-      { item: "Chicken breast", amount: "400g, sliced" },
-      { item: "Thai eggplant", amount: "200g" },
-      { item: "Bamboo shoots", amount: "100g" },
-      { item: "Thai basil", amount: "1 bunch" },
-      { item: "Fish sauce", amount: "2 tbsp" },
-      { item: "Palm sugar", amount: "1 tbsp" },
+      { ingredientName: "Green curry paste", amount: "3 tbsp" },
+      { ingredientName: "Coconut milk", amount: "400ml" },
+      { ingredientName: "Chicken breast", amount: "400g, sliced" },
+      { ingredientName: "Thai eggplant", amount: "200g" },
+      { ingredientName: "Bamboo shoots", amount: "100g" },
+      { ingredientName: "Thai basil", amount: "1 bunch" },
+      { ingredientName: "Fish sauce", amount: "2 tbsp" },
+      { ingredientName: "Palm sugar", amount: "1 tbsp" },
     ],
     steps: [
       "Heat 2 tbsp coconut cream in a wok until oil separates.",
@@ -244,14 +245,14 @@ const tempRecipes = [
     description:
       "Layered Mediterranean casserole with eggplant, spiced meat sauce, and creamy béchamel.",
     ingredients: [
-      { item: "Eggplants", amount: "3 large, sliced" },
-      { item: "Ground lamb", amount: "500g" },
-      { item: "Tomato sauce", amount: "400g" },
-      { item: "Onion", amount: "1 large, diced" },
-      { item: "Cinnamon", amount: "1 tsp" },
-      { item: "Butter", amount: "50g" },
-      { item: "Flour", amount: "50g" },
-      { item: "Milk", amount: "500ml" },
+      { ingredientName: "Eggplants", amount: "3 large, sliced" },
+      { ingredientName: "Ground lamb", amount: "500g" },
+      { ingredientName: "Tomato sauce", amount: "400g" },
+      { ingredientName: "Onion", amount: "1 large, diced" },
+      { ingredientName: "Cinnamon", amount: "1 tsp" },
+      { ingredientName: "Butter", amount: "50g" },
+      { ingredientName: "Flour", amount: "50g" },
+      { ingredientName: "Milk", amount: "500ml" },
     ],
     steps: [
       "Slice eggplants, salt them, and let drain for 30 minutes. Pat dry.",
@@ -289,6 +290,7 @@ export default function Page() {
   const debouncedSearchQuery = useDebounced(searchQuery, 500);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState("grid"); //"grid" or "masonry"
+  const [isLoading, setIsLoading] = useState(true);
 
   const cuisineTypes = [
     "All",
@@ -321,14 +323,18 @@ export default function Page() {
 
         const res = await fetchAllRecipes(filters);
         console.log("recipeResponse", res);
-
-        if (res && Array.isArray(res.data)) {
+        if(res.status === "Successful") {
           setRecipes(res.data);
+        } else {
+          setRecipes([]);
+          messageApi.error("Failed to fetch recipes. Please try again later.")
         }
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
         setRecipes([]);
         messageApi.error("Failed to fetch recipes. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -400,6 +406,10 @@ export default function Page() {
       return false;
     return true;
   });
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <ProtectedRoute>
@@ -588,7 +598,7 @@ export default function Page() {
               >
                 {filteredRecipes.map((recipe) => (
                   <div
-                    key={recipe.id}
+                    key={recipe._id}
                     className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 overflow-hidden group cursor-pointer"
                     onClick={() => {
                       setSelectedRecipe(recipe);
@@ -608,13 +618,13 @@ export default function Page() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleSave(recipe.id.toString());
+                          toggleSave(recipe._id);
                         }}
                         className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
                       >
                         <Bookmark
                           className={`w-5 h-5 ${
-                            savedRecipes.includes(recipe.id.toString())
+                            savedRecipes.includes(recipe._id)
                               ? "fill-orange-500 text-orange-500"
                               : "text-gray-600"
                           }`}
@@ -643,7 +653,7 @@ export default function Page() {
                         </span>{" "}
                         {recipe.dietary !== "None" && (
                           <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
-                            {recipe.dietary}
+                            {recipe.dietaryOptions}
                           </span>
                         )}
                       </div>
@@ -653,7 +663,8 @@ export default function Page() {
                       </h3>
 
                       <div className="flex items-center gap-2 mb-4">
-                        <span className="text-2xl">{recipe.authorAvatar}</span>
+                        {/* <span className="text-2xl">{recipe.authorAvatar}</span> */}
+                        <span className="text-2xl">{"👨‍🍳"}</span>
                         <span className="text-sm text-gray-600">
                           {recipe.author}
                         </span>
@@ -662,7 +673,7 @@ export default function Page() {
                       <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {recipe.time}
+                          {recipe.cookTime}
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -778,7 +789,8 @@ export default function Page() {
 
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-3xl">
-                        {selectedRecipe.authorAvatar}
+                        {/* {selectedRecipe.authorAvatar} */}
+                        {"👨‍🍳"}
                       </span>
                       <div>
                         <div className="font-semibold text-gray-900">
@@ -801,7 +813,7 @@ export default function Page() {
                           <Clock className="w-5 h-5" />
                         </div>
                         <div className="font-bold text-gray-900">
-                          {selectedRecipe.time}
+                          {selectedRecipe.cookTime + " + " + selectedRecipe.prepTime}
                         </div>
                         <div className="text-xs text-gray-900">Total Time</div>
                       </div>
@@ -830,12 +842,12 @@ export default function Page() {
 
                       <div className="text-center">
                         <button
-                          onClick={() => toggleLike(selectedRecipe.id)}
+                          onClick={() => toggleLike(selectedRecipe._id)}
                           className="flex flex-col items-center w-full"
                         >
                           <Heart
                             className={`w-5 h-5 mb-1 ${
-                              likedRecipes.includes(selectedRecipe.id)
+                              likedRecipes.includes(selectedRecipe._id)
                                 ? "fill-red-500 text-red-500"
                                 : "text-gray-600"
                             }`}
@@ -889,7 +901,7 @@ export default function Page() {
 
                     <div className="bg-linear-to-br from-orange-50 to-amber-50 rounded-xl p-6">
                       <div className="space-y-3">
-                        {selectedRecipe.ingredients.map(
+                        {selectedRecipe.ingredientList.map(
                           (ingredient: any, index: number) => {
                             const multiplier =
                               servings / selectedRecipe.servings;
@@ -918,7 +930,7 @@ export default function Page() {
                                         : "text-gray-900"
                                     }`}
                                   >
-                                    {ingredient.item}
+                                    {ingredient.ingredientName}
                                   </span>
                                   <span
                                     className={`ml-2 ${
@@ -1102,7 +1114,7 @@ export default function Page() {
                         .slice(0, 3)
                         .map((recipe) => (
                           <div
-                            key={recipe.id}
+                            key={recipe._id}
                             onClick={() => {
                               setSelectedRecipe(recipe);
                               setServings(recipe.servings);
@@ -1120,7 +1132,7 @@ export default function Page() {
                             </h3>
                             <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                               <Clock className="w-4 h-4" />
-                              {recipe.time}
+                              {recipe.cookTime}
                             </div>
                           </div>
                         ))}

@@ -2,7 +2,7 @@ import axios from "axios";
 import storageService from "./storageService";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://localhost:8080",
   timeout: 10000 * 30, // 10 seconds
 });
 

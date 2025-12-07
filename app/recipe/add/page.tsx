@@ -13,7 +13,7 @@ export default function AddRecipePage() {
     description: "",
     cuisine: "",
     difficulty: "",
-    dietary: "None",
+    dietaryOptions: "None",
     servings: "",
     prepTime: "",
     cookTime: "",
@@ -21,9 +21,9 @@ export default function AddRecipePage() {
   });
 
   const [ingredients, setIngredients] = useState([
-    { amount: "", item: "" },
-    { amount: "", item: "" },
-    { amount: "", item: "" },
+    { amount: "", ingredientName: "" },
+    { amount: "", ingredientName: "" },
+    { amount: "", ingredientName: "" },
   ]);
 
   const [steps, setSteps] = useState(["", "", ""]);
@@ -75,7 +75,7 @@ export default function AddRecipePage() {
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { amount: "", item: "" }]);
+    setIngredients([...ingredients, { amount: "", ingredientName: "" }]);
   };
 
   const removeIngredient = (index: number) => {
@@ -114,7 +114,7 @@ export default function AddRecipePage() {
     if (!formData.cookTime.trim()) newErrors.cookTime = "Cook time is required";
 
     const validIngredients = ingredients.filter(
-      (ing) => ing.amount.trim() && ing.item.trim()
+      (ing) => ing.amount.trim() && ing.ingredientName.trim()
     );
     if (validIngredients.length === 0) {
       newErrors.ingredients = "At least one ingredient is required";
@@ -142,7 +142,7 @@ export default function AddRecipePage() {
     try {
       // Filter out empty ingredients and steps
       const validIngredients = ingredients.filter(
-        (ing) => ing.amount.trim() && ing.item.trim()
+        (ing) => ing.amount.trim() && ing.ingredientName.trim()
       );
       const validSteps = steps.filter((step) => step.trim());
 
@@ -155,9 +155,6 @@ export default function AddRecipePage() {
           .map((tag: String) => tag.trim())
           .filter((tag: String) => tag),
       };
-
-      console.log("Recipe Data:", recipeData);
-
       // TODO: Call your API to save the recipe
       // await saveRecipe(recipeData);
 
@@ -308,8 +305,8 @@ export default function AddRecipePage() {
                     Dietary Options
                   </label>
                   <select
-                    name="dietary"
-                    value={formData.dietary}
+                    name="dietaryOptions"
+                    value={formData.dietaryOptions}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                   >
@@ -432,9 +429,9 @@ export default function AddRecipePage() {
                     <input
                       type="text"
                       placeholder="Ingredient name"
-                      value={ingredient.item}
+                      value={ingredient.ingredientName}
                       onChange={(e) =>
-                        handleIngredientChange(index, "item", e.target.value)
+                        handleIngredientChange(index, "ingredientName", e.target.value)
                       }
                       className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                     />
