@@ -6,6 +6,7 @@ import { message } from "antd";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import storageService from "@/src/util/storageService";
 
 export default function SignInPage() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -64,6 +65,8 @@ export default function SignInPage() {
       });
 
       login(response.user);
+      storageService.setItem("access_token", response.token.accessToken);
+      storageService.setItem("refresh_token", response.token.refreshToken);
       messageApi.open({
         type: "success",
         content: "User successfully logged in",

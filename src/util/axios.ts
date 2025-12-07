@@ -2,13 +2,13 @@ import axios from "axios";
 import storageService from "./storageService";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://localhost:5000",
   timeout: 10000 * 30, // 10 seconds
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -25,7 +25,7 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     const originalRequest = error.config;
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = localStorage.getItem("refresh_token");
     // Check if the error is due to an expired token
     if (
       error.response &&

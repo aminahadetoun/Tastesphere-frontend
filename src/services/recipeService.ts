@@ -25,7 +25,11 @@ const fetchSingleRecipe = async (id: string) => {
 
 const addARecipe = async (data: {}) => {
   try {
-    const response = await axiosInstance.post(addRecipe, data);
+    const response = await axiosInstance.post(addRecipe, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error adding a recipe:", error);

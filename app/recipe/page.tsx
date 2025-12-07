@@ -408,7 +408,11 @@ export default function Page() {
   });
 
   if (isLoading) {
-    return <Loading />
+    return (
+      <section className="min-h-screen bg-linear-to-b  from-orange-50 via-white to-amber-50">
+        <Loading />
+      </section>
+    )
   }
 
   return (

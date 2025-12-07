@@ -5,10 +5,23 @@ import { X, Plus, Upload, ChefHat, Clock, Users } from "lucide-react";
 import { addARecipe } from "@/src/services/recipeService";
 import { message } from "antd";
 
+interface FormDataType {
+  title: string;
+  description: string;
+  cuisine: string;
+  difficulty: string;
+  dietaryOptions: string;
+  servings: string;
+  prepTime: string;
+  cookTime: string;
+  tags: string;
+  image: File | null;
+}
+
 export default function AddRecipePage() {
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     title: "",
     description: "",
     cuisine: "",
@@ -18,6 +31,7 @@ export default function AddRecipePage() {
     prepTime: "",
     cookTime: "",
     tags: "",
+    image: null,
   });
 
   const [ingredients, setIngredients] = useState([
@@ -146,26 +160,52 @@ export default function AddRecipePage() {
       );
       const validSteps = steps.filter((step) => step.trim());
 
-      const recipeData = {
-        ...formData,
-        ingredientList: validIngredients,
-        steps: validSteps,
-        tags: formData.tags
+      const fd = new FormData();
+      fd.append("title", formData.title);
+      fd.append("description", formData.description);
+      fd.append("cuisine", formData.cuisine);
+      fd.append("difficulty", formData.difficulty);
+      fd.append("dietaryOptions", formData.dietaryOptions);
+      fd.append("servings", formData.servings);
+      fd.append("prepTime", formData.prepTime);
+      fd.append("cookTime", formData.cookTime);
+      fd.append("tags", JSON.stringify(
+        formData.tags
           .split(",")
           .map((tag: String) => tag.trim())
-          .filter((tag: String) => tag),
-      };
+          .filter((tag: String) => tag)
+      ));
+      if (formData.image) {
+        fd.append("image", formData.image);
+      }
+      fd.append("ingredientList", JSON.stringify(validIngredients));
+      fd.append("steps", JSON.stringify(validSteps));
+
+      // const recipeData = {
+      //   ...formData,
+      //   ingredientList: validIngredients,
+      //   steps: validSteps,
+      //   tags: formData.tags
+      //     .split(",")
+      //     .map((tag: String) => tag.trim())
+      //     .filter((tag: String) => tag),
+      // };
       // TODO: Call your API to save the recipe
       // await saveRecipe(recipeData);
 
       // Simulate API call
-      const resposnse = await addARecipe(recipeData);
-      messageApi.success("Recipe published successfully!");
-      router.push("/recipe");
+      console.log("Submitting recipe data:", fd);
+      const response = await addARecipe(fd);
+      if (response.status === "Successful") {
+        messageApi.success("Recipe published successfully!");
+        router.push("/recipe");
+      } else {
+        messageApi.error("Failed to publish recipe. Please try again.");
+      }
     } catch (error) {
       console.error("Error saving recipe:", error);
-      messageApi.error("Failed to publish recipe. Please try again.");
-      alert("Failed to publish recipe. Please try again.");
+      messageApi.error("Something went wrong. Please try again.");
+      // alert("Failed to publish recipe. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -388,15 +428,31 @@ export default function AddRecipePage() {
                 </span>
                 Recipe Photos
               </h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-400 transition-colors cursor-pointer">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  PNG, JPG up to 10MB (Required)
-                </p>
-              </div>
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Handle file upload logic here
+                      console.log("Selected file:", file);
+                      setFormData((prev) => ({ ...prev, image: file }) );
+                    }
+                  }} // optional handler
+                />
+
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-400 transition-colors cursor-pointer">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 font-medium">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    PNG, JPG up to 10MB (Required)
+                  </p>
+                </div>
+              </label>
             </div>
 
             {/* Section 3: Ingredients */}
