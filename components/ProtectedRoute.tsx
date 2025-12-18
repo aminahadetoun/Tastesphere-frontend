@@ -17,6 +17,8 @@ export default function ProtectedRoute({
     }
   }, [isAuthenticated, isLoading, router]);
 
+  console.log("Is user authenticated: ", isAuthenticated);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

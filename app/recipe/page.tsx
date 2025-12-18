@@ -23,252 +23,6 @@ import useDebounced from "@/src/hooks/useDebounced";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Loading from "@/components/Loading";
 
-const tempRecipes = [
-  {
-    id: 1,
-    title: "Authentic Italian Carbonara",
-    image:
-      "https://www.allrecipes.com/thmb/axhH9DPkfGYBPooMrwmyUqP4sEc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/245775-spaghetti-alla-carbonara-the-traditional-italian-recipe-DDMFS-4x3-879c32ee3cfb463582e3e6230e311029.jpg",
-    author: "Maria Romano",
-    authorAvatar: "👩‍🍳",
-    time: "30 min",
-    servings: 4,
-    difficulty: "Medium",
-    rating: 4.9,
-    reviews: 234,
-    likes: 1234,
-    views: 5678,
-    cuisine: "Italian",
-    dietary: "None",
-    description:
-      "Classic Roman pasta dish with eggs, pecorino cheese, guanciale, and black pepper. Simple yet elegant.",
-    ingredients: [
-      { item: "Spaghetti", amount: "400g" },
-      { item: "Guanciale (or pancetta)", amount: "200g" },
-      { item: "Egg yolks", amount: "4 large" },
-      { item: "Pecorino Romano cheese", amount: "100g, grated" },
-      { item: "Black pepper", amount: "To taste" },
-      { item: "Salt", amount: "For pasta water" },
-    ],
-    steps: [
-      "Bring a large pot of salted water to boil and cook spaghetti according to package directions.",
-      "While pasta cooks, cut guanciale into small strips and cook in a large pan over medium heat until crispy.",
-      "In a bowl, whisk together egg yolks, grated pecorino, and a generous amount of black pepper.",
-      "Reserve 1 cup of pasta water, then drain pasta. Remove pan from heat.",
-      "Add hot pasta to the pan with guanciale, toss to coat.",
-      "Add egg mixture and toss quickly, adding pasta water as needed to create a creamy sauce.",
-      "Serve immediately with extra pecorino and black pepper.",
-    ],
-    tags: ["Pasta", "Quick Dinner", "Italian Classic"],
-    prepTime: "10 min",
-    cookTime: "20 min",
-  },
-  {
-    id: 2,
-    title: "Japanese Ramen Bowl",
-    image:
-      "https://www.killingthyme.net/wp-content/uploads/2015/10/homemade-ramen-bowls-01.jpg",
-    author: "Kenji Tanaka",
-    authorAvatar: "👨‍🍳",
-    time: "45 min",
-    servings: 2,
-    difficulty: "Hard",
-    rating: 4.8,
-    reviews: 189,
-    likes: 892,
-    views: 4321,
-    cuisine: "Japanese",
-    dietary: "None",
-    description:
-      "Rich tonkotsu-style ramen with tender chashu pork, soft-boiled egg, and flavorful broth.",
-    ingredients: [
-      { item: "Ramen noodles", amount: "200g" },
-      { item: "Pork belly", amount: "300g" },
-      { item: "Chicken broth", amount: "1L" },
-      { item: "Soy sauce", amount: "3 tbsp" },
-      { item: "Mirin", amount: "2 tbsp" },
-      { item: "Eggs", amount: "2" },
-      { item: "Green onions", amount: "2, sliced" },
-      { item: "Nori sheets", amount: "2" },
-    ],
-    steps: [
-      "Prepare the chashu pork by marinating pork belly in soy sauce and mirin for 30 minutes.",
-      "Sear pork on all sides, then simmer in broth for 2 hours until tender.",
-      "Prepare soft-boiled eggs: boil for 6 minutes, then ice bath.",
-      "Cook ramen noodles according to package instructions.",
-      "Heat the broth and season with soy sauce and mirin.",
-      "Assemble bowls with noodles, sliced pork, halved eggs, green onions, and nori.",
-      "Pour hot broth over everything and serve immediately.",
-    ],
-    tags: ["Ramen", "Japanese", "Comfort Food"],
-    prepTime: "15 min",
-    cookTime: "30 min",
-  },
-  {
-    id: 3,
-    title: "Mexican Street Tacos",
-    image:
-      "https://slowcookergourmet.net/wp-content/uploads/2023/05/Street-Tacos-with-Slow-Cooker-Carnitas-44-of-13.jpg",
-    author: "Carlos Rodriguez",
-    authorAvatar: "👨‍🍳",
-    time: "20 min",
-    servings: 4,
-    difficulty: "Easy",
-    rating: 4.7,
-    reviews: 456,
-    likes: 2103,
-    views: 8765,
-    cuisine: "Mexican",
-    dietary: "Gluten-Free",
-    description:
-      "Authentic street-style tacos with marinated meat, fresh cilantro, and lime.",
-    ingredients: [
-      { ingredientName: "Flank steak", amount: "500g" },
-      { ingredientName: "Corn tortillas", amount: "12" },
-      { ingredientName: "White onion", amount: "1, diced" },
-      { ingredientName: "Fresh cilantro", amount: "1 bunch, chopped" },
-      { ingredientName: "Limes", amount: "3, cut into wedges" },
-      { ingredientName: "Garlic", amount: "3 cloves, minced" },
-      { ingredientName: "Cumin", amount: "1 tsp" },
-      { ingredientName: "Chili powder", amount: "1 tsp" },
-    ],
-    steps: [
-      "Marinate steak with garlic, cumin, chili powder, and lime juice for 15 minutes.",
-      "Heat a cast-iron skillet or grill to high heat.",
-      "Cook steak for 3-4 minutes per side for medium-rare.",
-      "Let meat rest for 5 minutes, then slice thinly against the grain.",
-      "Warm tortillas on the grill or in a dry pan.",
-      "Assemble tacos with meat, onion, and cilantro.",
-      "Serve with lime wedges and your favorite salsa.",
-    ],
-    tags: ["Tacos", "Mexican", "Quick"],
-    prepTime: "10 min",
-    cookTime: "10 min",
-  },
-  {
-    id: 4,
-    title: "French Croissants",
-    image:
-      "https://www.modernhoney.com/wp-content/uploads/2024/03/Easy-Chocolate-Almond-Croissants-2-crop.jpg",
-    author: "Sophie Laurent",
-    authorAvatar: "👩‍🍳",
-    time: "120 min",
-    servings: 12,
-    difficulty: "Hard",
-    rating: 4.9,
-    reviews: 321,
-    likes: 1567,
-    views: 6543,
-    cuisine: "French",
-    dietary: "Vegetarian",
-    description:
-      "Buttery, flaky, golden croissants made from scratch with laminated dough.",
-    ingredients: [
-      { ingredientName: "All-purpose flour", amount: "500g" },
-      { ingredientName: "Butter (cold)", amount: "280g" },
-      { ingredientName: "Milk (warm)", amount: "250ml" },
-      { ingredientName: "Sugar", amount: "50g" },
-      { ingredientName: "Salt", amount: "10g" },
-      { ingredientName: "Instant yeast", amount: "10g" },
-      { ingredientName: "Egg", amount: "1, for egg wash" },
-    ],
-    steps: [
-      "Mix flour, sugar, salt, yeast, and warm milk. Knead into smooth dough.",
-      "Refrigerate dough for 1 hour.",
-      "Roll out dough and place cold butter in center. Fold dough over butter.",
-      "Roll and fold dough 3 times, chilling between each fold.",
-      "Roll dough into rectangle, cut into triangles.",
-      "Roll each triangle from wide end to tip to form croissant shape.",
-      "Proof for 2 hours, brush with egg wash, bake at 200°C for 15-20 minutes.",
-    ],
-    tags: ["Pastry", "French", "Breakfast"],
-    prepTime: "90 min",
-    cookTime: "30 min",
-  },
-  {
-    id: 5,
-    title: "Thai Green Curry",
-    image:
-      "https://sixhungryfeet.com/wp-content/uploads/2021/01/THAI-GREEN-CURRY-WITH-TOFU-5.jpg",
-    author: "Ploy Somchai",
-    authorAvatar: "👩‍🍳",
-    time: "35 min",
-    servings: 4,
-    difficulty: "Medium",
-    rating: 4.6,
-    reviews: 198,
-    likes: 934,
-    views: 3456,
-    cuisine: "Thai",
-    dietary: "Gluten-Free",
-    description:
-      "Aromatic and spicy Thai curry with coconut milk, vegetables, and your choice of protein.",
-    ingredients: [
-      { ingredientName: "Green curry paste", amount: "3 tbsp" },
-      { ingredientName: "Coconut milk", amount: "400ml" },
-      { ingredientName: "Chicken breast", amount: "400g, sliced" },
-      { ingredientName: "Thai eggplant", amount: "200g" },
-      { ingredientName: "Bamboo shoots", amount: "100g" },
-      { ingredientName: "Thai basil", amount: "1 bunch" },
-      { ingredientName: "Fish sauce", amount: "2 tbsp" },
-      { ingredientName: "Palm sugar", amount: "1 tbsp" },
-    ],
-    steps: [
-      "Heat 2 tbsp coconut cream in a wok until oil separates.",
-      "Add curry paste and fry until fragrant, about 2 minutes.",
-      "Add chicken and cook until no longer pink.",
-      "Pour in remaining coconut milk and bring to simmer.",
-      "Add eggplant and bamboo shoots, cook for 10 minutes.",
-      "Season with fish sauce and palm sugar.",
-      "Add Thai basil leaves and serve with jasmine rice.",
-    ],
-    tags: ["Curry", "Thai", "Spicy"],
-    prepTime: "15 min",
-    cookTime: "20 min",
-  },
-  {
-    id: 6,
-    title: "Greek Moussaka",
-    image:
-      "https://www.mygreekodyssey.com/wp-content/uploads/2020/02/6f0a1285-f83c-4413-997b-cb45e7e4d3ac-1.jpg",
-    author: "Dimitri Papadopoulos",
-    authorAvatar: "👨‍🍳",
-    time: "90 min",
-    servings: 8,
-    difficulty: "Hard",
-    rating: 4.8,
-    reviews: 167,
-    likes: 756,
-    views: 2987,
-    cuisine: "Greek",
-    dietary: "None",
-    description:
-      "Layered Mediterranean casserole with eggplant, spiced meat sauce, and creamy béchamel.",
-    ingredients: [
-      { ingredientName: "Eggplants", amount: "3 large, sliced" },
-      { ingredientName: "Ground lamb", amount: "500g" },
-      { ingredientName: "Tomato sauce", amount: "400g" },
-      { ingredientName: "Onion", amount: "1 large, diced" },
-      { ingredientName: "Cinnamon", amount: "1 tsp" },
-      { ingredientName: "Butter", amount: "50g" },
-      { ingredientName: "Flour", amount: "50g" },
-      { ingredientName: "Milk", amount: "500ml" },
-    ],
-    steps: [
-      "Slice eggplants, salt them, and let drain for 30 minutes. Pat dry.",
-      "Fry eggplant slices until golden. Set aside.",
-      "Cook lamb with onion, add tomato sauce and cinnamon. Simmer 20 minutes.",
-      "Make béchamel: melt butter, add flour, gradually whisk in milk until thick.",
-      "Layer eggplant, meat sauce, and repeat in baking dish.",
-      "Top with béchamel sauce and grated cheese.",
-      "Bake at 180°C for 45 minutes until golden and bubbling.",
-    ],
-    tags: ["Greek", "Casserole", "Mediterranean"],
-    prepTime: "40 min",
-    cookTime: "50 min",
-  },
-];
-
 export default function Page() {
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
@@ -323,11 +77,11 @@ export default function Page() {
 
         const res = await fetchAllRecipes(filters);
         console.log("recipeResponse", res);
-        if(res.status === "Successful") {
+        if (res.status === "Successful") {
           setRecipes(res.data);
         } else {
           setRecipes([]);
-          messageApi.error("Failed to fetch recipes. Please try again later.")
+          messageApi.error("Failed to fetch recipes. Please try again later.");
         }
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
@@ -412,7 +166,7 @@ export default function Page() {
       <section className="min-h-screen bg-linear-to-b  from-orange-50 via-white to-amber-50">
         <Loading />
       </section>
-    )
+    );
   }
 
   return (
@@ -817,7 +571,9 @@ export default function Page() {
                           <Clock className="w-5 h-5" />
                         </div>
                         <div className="font-bold text-gray-900">
-                          {selectedRecipe.cookTime + " + " + selectedRecipe.prepTime}
+                          {selectedRecipe.cookTime +
+                            " + " +
+                            selectedRecipe.prepTime}
                         </div>
                         <div className="text-xs text-gray-900">Total Time</div>
                       </div>
@@ -909,7 +665,7 @@ export default function Page() {
                           (ingredient: any, index: number) => {
                             const multiplier =
                               servings / selectedRecipe.servings;
-                            const adjustedAmount = ingredient.amount.replace(
+                            const adjustedAmount = ingredient.amount?.replace(
                               /\d+/g,
                               (match: any) =>
                                 Math.round(parseInt(match) * multiplier)
