@@ -11,7 +11,7 @@ const fetchAllRecipes = async (params: {}) => {
     console.error("Error fetching all recipes:", error);
     return (error as any).response?.data || { error: "An error occurred" };
   }
-}
+};
 
 const fetchSingleRecipe = async (id: string) => {
   try {
@@ -21,7 +21,7 @@ const fetchSingleRecipe = async (id: string) => {
     console.error("Error fetching single recipe:", error);
     return (error as any).response?.data || { error: "An error occurred" };
   }
-}
+};
 
 const addARecipe = async (data: {}) => {
   try {
@@ -35,10 +35,6 @@ const addARecipe = async (data: {}) => {
     console.error("Error adding a recipe:", error);
     return (error as any).response?.data || { error: "An error occurred" };
   }
-}
-
-export {
-  fetchAllRecipes,
-  fetchSingleRecipe,
-  addARecipe
 };
+
+export { fetchAllRecipes, fetchSingleRecipe, addARecipe };

@@ -27,12 +27,12 @@ import {
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const userProfile = {
-  name: "Emma Chen",
-  username: "@emmachen",
+  name: "Aminah Adebayo",
+  username: "@aminah_adebayo",
   avatar: "👩‍🍳",
   coverImage:
     "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200",
-  bio: "Food enthusiast | Recipe creator | Exploring Asian fusion cuisine 🍜",
+  bio: "Food enthusiast | Recipe creator | Exploring Nigerian fusion cuisine 🍜",
   location: "San Francisco, CA",
   joinDate: "January 2024",
   stats: {
